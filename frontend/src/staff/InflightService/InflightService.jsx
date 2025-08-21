@@ -104,10 +104,10 @@ export default function InflightService() {
             <div className="grid grid-cols-6 gap-2">
               {flight.seatMap.map((s) => {
                 const assigned = seatPassengersMap.get(s.number) || []
-                // pick first passenger to determine meal type for this seat row
+                // pick first passenger to determine meal preference for this seat
                 const first = assigned[0]
                 let colorClass = ''
-                if (first) {
+                if (assigned.length > 0 && first) {
                   const mt = (first.mealType || '').toString().toLowerCase()
                   if (mt.includes('veg')) colorClass = 'bg-green-400 text-white'
                   else if (mt.includes('non')) colorClass = 'bg-red-400 text-white'
@@ -118,14 +118,26 @@ export default function InflightService() {
                   colorClass = 'bg-white'
                 }
 
+                const title = assigned.length > 0
+                  ? `${assigned.map((a) => a.name).join(', ')} - ${assigned.map((a) => a.mealType || a.specialMeal || 'Unknown').join(', ')}`
+                  : s.isBooked
+                  ? 'Booked (no passenger data)'
+                  : 'Available'
+
+                const smallText = assigned.length > 0
+                  ? (first.mealType || first.specialMeal || 'Unknown')
+                  : s.isBooked
+                  ? 'Booked'
+                  : 'Free'
+
                 return (
                   <div
                     key={s.number}
-                    title={assigned.length > 0 ? `${assigned.map((a) => a.name).join(', ')} - ${assigned.map((a) => a.mealType || a.specialMeal || '').join(', ')}` : s.isBooked ? 'Booked (no passenger data)' : 'Available'}
+                    title={title}
                     className={`border border-gray-300 px-2 py-3 rounded text-center text-sm ${colorClass}`}
                   >
                     <div className="font-semibold">{s.number}</div>
-                    <div className="text-xs">{assigned.length > 0 ? assigned.map((a) => a.seat).join(', ') : s.isBooked ? 'Booked' : 'Free'}</div>
+                    <div className="text-xs">{smallText}</div>
                   </div>
                 )
               })}

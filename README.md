@@ -1,16 +1,1 @@
 ﻿# square-one
-
-checkin 
-	color grading
-	data not changing for wheel chair
-	need to add the button for the passenger list
-	check in and undo of the seat
-	change the seat of the passenger through passenger list
-inflight
-	display the flight details and color coded 
-	add ancillary services
-	change meal preference
-	add in flight shop request is there but not reflecting
-admin
-	list of flight should be displayed	
-	filter passenger by button

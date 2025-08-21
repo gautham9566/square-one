@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { findByName, findById, addOrUpdate, remove } from './passengerService'
 import { useState } from 'react'
+import { travelHistory, flights } from '../data/dummyData'
 
 export default function PassengerDetails() {
   const { name } = useParams()
@@ -73,11 +74,42 @@ export default function PassengerDetails() {
 
       <div className="mt-6">
         <h3 className="font-semibold">Travel history</h3>
-        <ul className="list-disc pl-6 mt-2 text-sm text-gray-700">
-          {(p.travelHistory || []).map((t, i) => (
-            <li key={i}>{t}</li>
-          ))}
-        </ul>
+        <div className="overflow-x-auto bg-white rounded shadow mt-3">
+          <table className="w-full table-auto border-collapse">
+            <thead>
+              <tr className="text-left border-b">
+                <th className="p-2">Date</th>
+                <th className="p-2">Flight</th>
+                <th className="p-2">Route</th>
+                <th className="p-2">Seat</th>
+                <th className="p-2">Booking Ref</th>
+                <th className="p-2">Status</th>
+                <th className="p-2">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {travelHistory.filter(r => r.passengerId === p.id).map(r => {
+                const f = flights.find(x => x.id === r.flightId)
+                return (
+                  <tr key={r.id} className="border-b">
+                    <td className="p-2">{r.date}</td>
+                    <td className="p-2">{f ? f.name : 'Unknown'}</td>
+                    <td className="p-2">{r.origin} → {r.destination}</td>
+                    <td className="p-2">{r.seat || '-'}</td>
+                    <td className="p-2">{r.bookingReference}</td>
+                    <td className="p-2">{r.status}</td>
+                    <td className="p-2">{r.notes || '-'}</td>
+                  </tr>
+                )
+              })}
+              {travelHistory.filter(r => r.passengerId === p.id).length === 0 && (
+                <tr>
+                  <td colSpan={7} className="p-4 text-sm text-gray-600">No travel history for this passenger.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

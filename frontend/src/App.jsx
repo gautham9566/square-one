@@ -6,6 +6,7 @@ import ManageFlights from './admin/ManageFlights'
 import ManageRoutes from './admin/ManageRoutes'
 import PassengerDetailsAdmin from './admin/PassengerDetails'
 import FlightDetails from './admin/FlightDetails'
+import TravelHistory from './admin/TravelHistory'
 import StaffHome from './pages/StaffHome'
 import PassengerHome from './pages/PassengerHome'
 import PassengerBooking from './pages/PassengerBooking'
@@ -31,10 +32,12 @@ export default function App() {
             <Route index element={<div className="p-4 bg-white rounded">Select an admin area from above.</div>} />
             <Route path="passengers" element={<ManagePassengers />} />
             <Route path="passengers/:name" element={<PassengerDetailsAdmin />} />
+            <Route path="passengers/:flightId/passengerlist" element={<ManagePassengers />} />
             <Route path="flights" element={<ManageFlights />} />
             <Route path="flights/new" element={<FlightDetails />} />
             <Route path="flights/:id" element={<FlightDetails />} />
             <Route path="routes" element={<ManageRoutes />} />
+            <Route path="travel-history" element={<TravelHistory />} />
           </Route>
           <Route path="/staff" element={<StaffHome />} />
           {/* Passenger routes */}

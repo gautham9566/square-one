@@ -1,16 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { flights } from '../../data/dummyData'
-
- const handleCheckIn = () => {
-    navigate('/checkin')
-  }
 export default function CheckIn() {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
   const [dateFilter, setDateFilter] = useState('')
   const [startLocation, setStartLocation] = useState('')
   const [destination, setDestination] = useState('')
+  
 
   const filteredFlights = flights.filter((flight) => {
     const matchesSearch = flight.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -69,6 +66,7 @@ export default function CheckIn() {
             />
           </label>
         </div>
+        
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
         {filteredFlights.map((flight) => (

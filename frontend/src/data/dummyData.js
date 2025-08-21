@@ -2,7 +2,6 @@ export const users = [
   { username: 'admin1', password: 'adminpass', role: 'admin', name: 'Alice' },
   { username: 'inflight1', password: 'inflightpass', role: 'inflightStaff', name: 'Charlie Inflight', flightId: 1 },
   { username: 'checkin1', password: 'checkinpass', role: 'checkinStaff', name: 'Diana Checkin', flightId: 2 },
-  // passenger user for booking flow
   { username: 'passenger1', password: 'passpass', role: 'passenger', name: 'Sam Traveler', email: 'sam@example.com', phoneNumber: '999-888-7777' },
 ]
 
@@ -25,11 +24,17 @@ export const flights = [
     arrivalTime: '04:00 PM',
     aircraftType: 'Boeing 747',
     totalSeats: 20,
-    availableSeats: 0,
+    availableSeats: 17,
     services: ['Ancillary', 'Meal', 'Shopping'],
+    // available subtypes for each service on this flight
+    serviceSubtypes: {
+      Ancillary: ['Extra Baggage 5kg', 'Extra Baggage 10kg', 'Priority Boarding'],
+      Meal: ['Veg', 'Non-Veg', 'Vegan', 'Gluten-Free'],
+      Shopping: ['Magazine', 'Perfume', 'Sunglasses', 'Headphones']
+    },
     seatMap: Array.from({ length: 20 }, (_, i) => ({
       number: i + 1,
-      isBooked: i < 20,
+      isBooked: [12, 14, 15].includes(i + 1),
     })),
   },
   {                                              
@@ -41,11 +46,15 @@ export const flights = [
     arrivalTime: '11:00 PM',
     aircraftType: 'Airbus A380',
     totalSeats: 30,
-    availableSeats: 15,
+    availableSeats: 28,
     services: ['Ancillary', 'Meal'],
+    serviceSubtypes: {
+      Ancillary: ['Extra Baggage 5kg', 'Priority Boarding'],
+      Meal: ['Veg', 'Non-Veg', 'Kosher']
+    },
     seatMap: Array.from({ length: 30 }, (_, i) => ({
       number: i + 1,
-      isBooked: i < 15,
+      isBooked: [10, 11].includes(i + 1),
     })),
   },
   {
@@ -57,11 +66,14 @@ export const flights = [
     arrivalTime: '06:00 AM',
     aircraftType: 'Boeing 777',
     totalSeats: 30,
-    availableSeats: 5,
+    availableSeats: 29,
     services: ['Shopping'],
+    serviceSubtypes: {
+      Shopping: ['Souvenir', 'Duty-Free Liquor', 'Travel Adapter']
+    },
     seatMap: Array.from({ length: 30 }, (_, i) => ({
       number: i + 1,
-      isBooked: i < 25,
+      isBooked: [5].includes(i + 1),
     })),
   },
 ]
@@ -82,8 +94,8 @@ export const passengers = [
     mealName: 'Biryani',
     extraBaggage: 10,
     shoppingItems: [],
-    seat: '12A',
-    checkedIn: true,
+  seat: '12A',
+  checkedIn: true,
     wheelchair: false,
     infant: false,
   },
@@ -98,8 +110,8 @@ export const passengers = [
     to: 'LON',
     services: ['Shopping'],
     shoppingItems: ['Magazine', 'Perfume'],
-    seat: '14B',
-    checkedIn: false,
+  seat: '14B',
+  checkedIn: true,
     wheelchair: true,
     infant: false,
   },
@@ -117,8 +129,8 @@ export const passengers = [
     mealType: 'Non-Veg',
     mealName: 'Burger',
     shoppingItems: ['Chocolates'],
-    seat: '15C',
-    checkedIn: true,
+  seat: '15C',
+  checkedIn: true,
     wheelchair: false,
     infant: true,
   },
@@ -135,8 +147,8 @@ export const passengers = [
     services: ['Meal'],
     mealType: 'Veg',
     mealName: 'Salad',
-    seat: '10A',
-    checkedIn: false,
+  seat: '10A',
+  checkedIn: true,
     wheelchair: false,
     infant: false,
   },
@@ -152,8 +164,8 @@ export const passengers = [
     to: 'TOK',
     services: ['Shopping'],
     shoppingItems: ['Watch'],
-    seat: '11B',
-    checkedIn: true,
+  seat: '11B',
+  checkedIn: true,
     wheelchair: false,
     infant: false,
   },
@@ -168,9 +180,136 @@ export const passengers = [
     to: 'SYD',
     services: ['Ancillary'],
     extraBaggage: 15,
-    seat: '5C',
-    checkedIn: false,
+  seat: '5C',
+  checkedIn: true,
     wheelchair: true,
     infant: true,
   },
+]
+
+// Simple travel history records for display/testing.
+// Each record links a passenger to a flight and contains common trip metadata.
+export const travelHistory = [
+  {
+    id: 1,
+    passengerId: 1,
+    flightId: 1,
+    date: '2024-12-15',
+    origin: 'NYC',
+    destination: 'LON',
+    seat: '12A',
+    bookingReference: 'ABC123',
+    fareClass: 'Economy',
+    status: 'Completed',
+    distanceKm: 5567,
+    durationMin: 420,
+    notes: 'On-time arrival'
+  },
+  {
+    id: 2,
+    passengerId: 2,
+    flightId: 1,
+    date: '2025-01-10',
+    origin: 'NYC',
+    destination: 'LON',
+    seat: '14B',
+    bookingReference: 'DEF456',
+    fareClass: 'Economy',
+    status: 'Completed',
+    distanceKm: 5567,
+    durationMin: 430,
+    notes: 'Delayed due to weather'
+  },
+  {
+    id: 3,
+    passengerId: 3,
+    flightId: 1,
+    date: '2025-02-05',
+    origin: 'NYC',
+    destination: 'LON',
+    seat: '15C',
+    bookingReference: 'GHI789',
+    fareClass: 'Business',
+    status: 'Completed',
+    distanceKm: 5567,
+    durationMin: 415,
+    notes: 'Upgraded to Business'
+  },
+  {
+    id: 4,
+    passengerId: 4,
+    flightId: 2,
+    date: '2025-03-21',
+    origin: 'PAR',
+    destination: 'TOK',
+    seat: '10A',
+    bookingReference: 'JKL012',
+    fareClass: 'Economy',
+    status: 'Completed',
+    distanceKm: 9712,
+    durationMin: 840,
+    notes: ''
+  },
+  {
+    id: 5,
+    passengerId: 5,
+    flightId: 2,
+    date: '2025-04-01',
+    origin: 'PAR',
+    destination: 'TOK',
+    seat: '11B',
+    bookingReference: 'MNO345',
+    fareClass: 'Premium Economy',
+    status: 'Checked-in',
+    distanceKm: 9712,
+    durationMin: 845,
+    notes: 'Checked in online'
+  },
+  {
+    id: 6,
+    passengerId: 6,
+    flightId: 3,
+    date: '2025-05-18',
+    origin: 'LAX',
+    destination: 'SYD',
+    seat: '5C',
+    bookingReference: 'PQR678',
+    fareClass: 'Economy',
+    status: 'Cancelled',
+    distanceKm: 12051,
+    durationMin: 900,
+    notes: 'Cancelled by airline'
+  },
+  // Edge case: passenger with no recorded seat (standby)
+  {
+    id: 7,
+    passengerId: 2,
+    flightId: 3,
+    date: '2025-06-02',
+    origin: 'LAX',
+    destination: 'SYD',
+    seat: null,
+    bookingReference: 'STB999',
+    fareClass: 'Standby',
+    status: 'Pending',
+    distanceKm: 12051,
+    durationMin: 905,
+    notes: 'Standby passenger'
+  },
+  // Future booking
+  {
+    id: 8,
+    passengerId: 1,
+    flightId: 2,
+    date: '2025-12-10',
+    origin: 'PAR',
+    destination: 'TOK',
+    seat: '20C',
+    bookingReference: 'FUT2025',
+    fareClass: 'Economy',
+    status: 'Booked',
+    distanceKm: 9712,
+    durationMin: 840,
+    notes: 'Return trip'
+  }
 ]
