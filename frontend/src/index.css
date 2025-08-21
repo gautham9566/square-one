@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* minimal fallback styles */
+html, body, #root { height: 100%; }
+/* Use plain CSS properties instead of @apply for global elements to avoid Tailwind unknown utility errors */
+body { background-color: #f8fafc; color: #0f172a; }
+
