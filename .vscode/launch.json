@@ -2,11 +2,29 @@
     "configurations": [
         {
             "type": "java",
+            "name": "TravelHistoryServiceApplication",
+            "request": "launch",
+            "mainClass": "com.oracle.travel_history_service.TravelHistoryServiceApplication",
+            "projectName": ""
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-UsermanagementApplication<usermanagement>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "mainClass": "com.oracle.usermanagement.UsermanagementApplication",
             "projectName": "usermanagement",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=64645 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=usermanagement"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-TravelHistoryServiceApplication<travel_history_service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.oracle.travel_history_service.TravelHistoryServiceApplication",
+            "projectName": "travel_history_service",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }
