@@ -7,6 +7,11 @@ echo Starting Eureka Server...
 start "Eureka Server" cmd /k "cd eureka-server && mvn spring-boot:run"
 timeout /t 15 /nobreak > nul
 
+:: Start API Gateway
+echo Starting API Gateway...
+start "API Gateway" cmd /k "cd api-gateway && mvn spring-boot:run"
+timeout /t 10 /nobreak > nul
+
 :: Start Backend1 (Authentication Service)
 echo Starting Backend1 (Authentication)...
 start "Backend1" cmd /k "cd backend1 && mvn spring-boot:run"
@@ -47,6 +52,7 @@ echo Please wait for all services to fully initialize.
 echo 
 echo Service URLs:
 echo - Eureka Server: http://localhost:8761
+echo - API Gateway: http://localhost:8090 (Main Entry Point)
 echo - Backend1 (Auth): http://localhost:8080
 echo - Flights: http://localhost:8081
 echo - Passengers: http://localhost:8082
@@ -54,5 +60,14 @@ echo - User Management: http://localhost:8083
 echo - Service Management: http://localhost:8084
 echo - Travel History: http://localhost:8085
 echo - Frontend: http://localhost:5173
+echo.
+echo ================================================
+echo API Gateway Routes (Access all services through port 8090):
+echo - Authentication: http://localhost:8090/api/auth/**
+echo - Flights: http://localhost:8090/flights/**
+echo - Passengers: http://localhost:8090/passengers/**
+echo - Users: http://localhost:8090/users/**
+echo - Services: http://localhost:8090/services/**
+echo - Travel History: http://localhost:8090/history/**
 echo ================================================
 pause
