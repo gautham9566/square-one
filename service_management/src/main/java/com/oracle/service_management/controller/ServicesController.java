@@ -226,4 +226,35 @@ public class ServicesController {
         List<PassengerServicesDto> passengers = servicesService.getPassengersWithShoppingServices(flightId);
         return ResponseEntity.ok(passengers);
     }
+
+    /**
+     * Health check endpoint
+     * @return simple health status
+     */
+    @GetMapping("/health")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("Service Management Service is running");
+    }
+
+    /**
+     * Get API information
+     * @return API information
+     */
+    @GetMapping("/info")
+    public ResponseEntity<Object> getApiInfo() {
+        return ResponseEntity.ok(new Object() {
+            public final String service = "Service Management Service";
+            public final String version = "1.0.0";
+            public final String description = "Manage passenger services including meals, baggage, shopping, and ancillary services";
+            public final String[] endpoints = {
+                "GET /services/flight/{flightId} - Get services for specific flight",
+                "GET /services/flight/{flightId}?serviceType={type} - Get services by type for flight",
+                "GET /services/passenger/{passengerId} - Get passenger services information",
+                "PUT /services/passenger/{passengerId} - Update passenger services",
+                "GET /services/meals/flight/{flightId} - Get meal services for flight",
+                "GET /services/baggage/flight/{flightId} - Get baggage services for flight",
+                "GET /services/shopping/flight/{flightId} - Get shopping services for flight"
+            };
+        });
+    }
 }

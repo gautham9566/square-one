@@ -32,7 +32,9 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         "/actuator/info",
         "/eureka",
         "/history/info",
-        "/history/health"
+        "/history/health",
+        "/services/info",
+        "/services/health"
     );
 
     @Override

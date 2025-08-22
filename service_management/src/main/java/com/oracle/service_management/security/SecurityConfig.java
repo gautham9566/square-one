@@ -29,8 +29,9 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/actuator/health").permitAll()   // health check endpoint open to all
-                .requestMatchers("/services/**").authenticated()   // all service endpoints require authentication
+                .requestMatchers("/actuator/health", "/actuator/info").permitAll()   // health check endpoints open to all
+                .requestMatchers("/services/health", "/services/info").permitAll()     // service info endpoints open to all
+                .requestMatchers("/services/**").authenticated()   // all other service endpoints require authentication
                 .anyRequest().denyAll() // everything else blocked
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

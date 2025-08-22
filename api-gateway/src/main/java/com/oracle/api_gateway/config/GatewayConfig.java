@@ -38,7 +38,7 @@ public class GatewayConfig {
                 // Service Management Routes
                 .route("services-management", r -> r
                         .path("/services/**")
-                        .uri("lb://service_management"))
+                        .uri("http://localhost:8084"))
                 
                 // Travel History Service Routes
                 .route("travel-history-service", r -> r
