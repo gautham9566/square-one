@@ -16,7 +16,7 @@ public class ServiceRequestDto {
     @NotNull(message = "Flight ID is required")
     private Long flightId;
     
-    @JsonProperty("services")
+    @JsonProperty("requestedServices")
     private List<String> requestedServices;
     
     // Meal service details

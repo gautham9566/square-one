@@ -16,7 +16,7 @@ public class ShoppingDto {
     @NotNull(message = "Flight ID is required")
     private Long flightId;
     
-    @JsonProperty("shoppingItems")
+    @JsonProperty("items")
     private List<String> items;
     
     private Double totalCost;

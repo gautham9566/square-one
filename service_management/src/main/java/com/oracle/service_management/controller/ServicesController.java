@@ -3,6 +3,8 @@ package com.oracle.service_management.controller;
 import com.oracle.service_management.dto.*;
 import com.oracle.service_management.service.ServicesService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +21,10 @@ import java.util.Optional;
 @RequestMapping("/services")
 @CrossOrigin(origins = "*") // Allow CORS for frontend integration
 public class ServicesController {
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(ServicesController.class);
     private final ServicesService servicesService;
-    
+
     @Autowired
     public ServicesController(ServicesService servicesService) {
         this.servicesService = servicesService;
@@ -113,9 +116,14 @@ public class ServicesController {
     public ResponseEntity<ServiceResponseDto> updatePassengerServices(
             @PathVariable Long passengerId,
             @Valid @RequestBody ServiceRequestDto serviceRequest) {
-        
+
+        // Debug logging
+        logger.info("Received service request for passenger {}: passengerId={}, flightId={}, requestedServices={}, mealType={}, shoppingItems={}",
+                passengerId, serviceRequest.getPassengerId(), serviceRequest.getFlightId(),
+                serviceRequest.getRequestedServices(), serviceRequest.getMealType(), serviceRequest.getShoppingItems());
+
         ServiceResponseDto response = servicesService.updatePassengerServices(passengerId, serviceRequest);
-        
+
         if (response.isSuccess()) {
             return ResponseEntity.ok(response);
         } else {
@@ -173,9 +181,14 @@ public class ServicesController {
     public ResponseEntity<ServiceResponseDto> updatePassengerShopping(
             @PathVariable Long passengerId,
             @Valid @RequestBody ShoppingDto shoppingDto) {
-        
+
+        // Debug logging
+        logger.info("Received shopping request for passenger {}: passengerId={}, flightId={}, items={}, deliveryInstructions={}",
+                passengerId, shoppingDto.getPassengerId(), shoppingDto.getFlightId(),
+                shoppingDto.getItems(), shoppingDto.getDeliveryInstructions());
+
         ServiceResponseDto response = servicesService.updatePassengerShopping(passengerId, shoppingDto);
-        
+
         if (response.isSuccess()) {
             return ResponseEntity.ok(response);
         } else {
