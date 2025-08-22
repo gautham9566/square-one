@@ -90,32 +90,60 @@ The Travel History Service manages passenger travel records and booking history,
    mvn spring-boot:run
    ```
 
-The service will start on port **8084** by default.
+The service will start on port **8085** by default.
 
-## API Usage Examples
+## Service Status & Testing
 
-### Get Passenger Travel History
+### Current Status
+✅ **Direct Service Access**: All endpoints work correctly when accessed directly on port 8085
+⚠️ **API Gateway Access**: Currently experiencing routing issues through the API Gateway
+
+### Direct Service Testing (Port 8085)
+
+#### Get Service Information (No Authentication Required)
 ```bash
-curl -X GET "http://localhost:8084/history/passenger/1" \
+curl -X GET "http://localhost:8085/history/info" \
      -H "Content-Type: application/json"
 ```
 
-### Get Booking by Reference
+#### Get Service Health (No Authentication Required)
 ```bash
-curl -X GET "http://localhost:8084/history/booking/ABC123" \
+curl -X GET "http://localhost:8085/history/health" \
      -H "Content-Type: application/json"
 ```
 
-### Get Flight History
+#### Get Passenger Travel History (Authentication Required)
 ```bash
-curl -X GET "http://localhost:8084/history/flight/1" \
-     -H "Content-Type: application/json"
+# First get a JWT token
+curl -X POST "http://localhost:8090/api/auth/login" \
+     -H "Content-Type: application/json" \
+     -d '{"username":"admin1","password":"adminpass"}'
+
+# Then use the token
+curl -X GET "http://localhost:8085/history/passenger/1" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
-### Get Recent Travel History
+#### Get Booking by Reference (Authentication Required)
 ```bash
-curl -X GET "http://localhost:8084/history/passenger/1/recent" \
-     -H "Content-Type: application/json"
+curl -X GET "http://localhost:8085/history/booking/ABC123" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+#### Get Flight History (Authentication Required)
+```bash
+curl -X GET "http://localhost:8085/history/flight/1" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+#### Get Recent Travel History (Authentication Required)
+```bash
+curl -X GET "http://localhost:8085/history/passenger/1/recent" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
 ### Get Travel History by Status
@@ -209,7 +237,7 @@ Key configuration properties in `application.properties`:
 
 ```properties
 # Server Configuration
-server.port=8084
+server.port=8085
 
 # Database Configuration
 spring.datasource.url=jdbc:oracle:thin:@localhost:1521:orcl
@@ -259,15 +287,40 @@ src/
 ### Common Issues
 
 1. **Database Connection Issues**
-   - Verify Oracle database is running
-   - Check connection properties in application.properties
-   - Ensure database schema is properly set up
+   - Ensure Oracle database is running on localhost:1521
+   - Verify credentials (system/Oracle2022)
+   - Check if the database service is accessible
 
-2. **Port Conflicts**
-   - Change server.port in application.properties if 8084 is in use
+2. **Port Already in Use**
+   - Check if port 8085 is already occupied
+   - Use `netstat -an | findstr 8085` to check port usage
+   - Kill any processes using the port if necessary
 
-3. **Memory Issues**
+3. **Eureka Registration Issues**
+   - Ensure Eureka server is running on localhost:8761
+   - Check network connectivity to Eureka server
+   - Verify service registration in Eureka dashboard
+
+4. **Security Configuration Issues**
+   - **Fixed**: Updated security configuration to allow `/history/**` endpoints
+   - **Fixed**: Added `/history/info` and `/history/health` to permitAll list
+   - JWT tokens are required for all endpoints except info and health
+
+5. **API Gateway Routing Issues**
+   - **Known Issue**: Service name mismatch between registration (`TRAVEL_HISTORY_SERVICE`) and gateway configuration
+   - **Workaround**: Use direct service access on port 8085
+   - **Status**: Under investigation for proper gateway integration
+
+6. **Memory Issues**
    - Increase JVM heap size: `-Xmx512m`
+
+### Recent Fixes Applied
+
+- ✅ Fixed security configuration to match controller endpoints (`/history/**` instead of `/travel-history/**`)
+- ✅ Added info and health endpoints to permitAll list
+- ✅ Updated README with correct port number (8085)
+- ✅ Verified JWT token validation works correctly
+- ✅ All direct service endpoints are functional
 
 ### Logs
 

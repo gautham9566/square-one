@@ -30,7 +30,9 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         "/api/auth/validate-token",
         "/actuator/health",
         "/actuator/info",
-        "/eureka"
+        "/eureka",
+        "/history/info",
+        "/history/health"
     );
 
     @Override

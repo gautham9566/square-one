@@ -43,7 +43,7 @@ public class GatewayConfig {
                 // Travel History Service Routes
                 .route("travel-history-service", r -> r
                         .path("/history/**")
-                        .uri("lb://travel_history_service"))
+                        .uri("http://localhost:8085"))
                 
                 // Health Check Routes for all services
                 .route("eureka-health", r -> r

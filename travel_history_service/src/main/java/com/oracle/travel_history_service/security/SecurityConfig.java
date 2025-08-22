@@ -29,8 +29,9 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/actuator/health").permitAll()   // health check endpoint open to all
-                .requestMatchers("/travel-history/**").authenticated() // all travel history endpoints require authentication
+                .requestMatchers("/actuator/health", "/actuator/info").permitAll()   // health check endpoints open to all
+                .requestMatchers("/history/health", "/history/info").permitAll()     // travel history info endpoints open to all
+                .requestMatchers("/history/**").authenticated() // all other travel history endpoints require authentication
                 .anyRequest().denyAll() // everything else blocked
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
