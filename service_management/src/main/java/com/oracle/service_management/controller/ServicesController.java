@@ -19,7 +19,6 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/services")
-@CrossOrigin(origins = "*") // Allow CORS for frontend integration
 public class ServicesController {
 
     private static final Logger logger = LoggerFactory.getLogger(ServicesController.class);

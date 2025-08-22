@@ -1,0 +1,27 @@
+/* Demo-only stylesheet extracted from global styles. Only imported by /demo */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@layer base {
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body { background: #fafafa; color: #111827; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  ::selection { background: #2563eb; color: white; }
+}
+
+@layer components {
+  .btn-primary { background: #2563eb; color: white; padding: .625rem 1.5rem; border-radius: .5rem; }
+  .card-base { background: white; border-radius: .75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .flight-card { border: 1px solid #f3f4f6; }
+  .bg-flight-primary { background-color: #0066ff; }
+  .bg-flight-bg { background-color: #87CEEB; }
+  .bg-admin-primary { background-color: #6366f1; }
+  .bg-admin-sidebar { background-color: #4c1d95; }
+}
+
+@layer utilities {
+  .text-flight-primary { color: #0066ff; }
+  .text-admin-primary { color: #6366f1; }
+  .text-status-completed { color: #10b981; }
+  .bg-neutral-50 { background-color: #fafafa; }
+}

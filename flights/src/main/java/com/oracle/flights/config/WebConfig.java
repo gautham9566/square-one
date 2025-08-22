@@ -12,10 +12,9 @@ public class WebConfig implements WebMvcConfigurer {
     
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/flights/**")
-                .allowedOrigins("*")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .allowCredentials(false);
+    // CORS is handled centrally by the API Gateway. Removing service-level
+    // CORS mappings prevents duplicate Access-Control-Allow-Origin headers.
+    // If you need direct access to this service (bypassing the gateway)
+    // during local development, re-enable an appropriate mapping here.
     }
 }

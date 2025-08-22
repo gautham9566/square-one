@@ -11,11 +11,7 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
+// CORS handled by API Gateway; imports removed
 
 @Configuration
 public class SecurityConfig {
@@ -26,11 +22,14 @@ public class SecurityConfig {
         this.jwtRequestFilter = jwtRequestFilter;
     }
 
-   @Bean
+    @Bean
 public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
         .csrf(csrf -> csrf.disable())
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        // CORS is handled centrally by the API Gateway to avoid duplicate headers.
+        // If you need service-level CORS for direct access during development,
+        // temporarily re-enable the following line.
+        // .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/auth/login").permitAll()   // login endpoint open to all
             .requestMatchers("/api/auth/validate-token").permitAll()   // token validation open to all
@@ -51,18 +50,12 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
         return config.getAuthenticationManager();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:5173", "http://localhost:3000"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+    // Service-level CORS configuration removed to prevent duplicate
+    // Access-Control-Allow-Origin headers when requests are proxied
+    // through the API Gateway. The gateway's `CorsConfig` provides
+    // the required CORS handling for frontend origins.
+    // If you need to enable service-level CORS for local direct access,
+    // re-add the @Bean and method body above.
 
     @Bean
     @SuppressWarnings("deprecation") // Using NoOpPasswordEncoder for demo purposes with plain text passwords in DB

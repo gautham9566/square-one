@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/history")
 @Validated
-@CrossOrigin(origins = "*") // Configure as needed for your frontend
+    
 public class TravelHistoryController {
 
     private static final Logger logger = LoggerFactory.getLogger(TravelHistoryController.class);

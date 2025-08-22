@@ -17,7 +17,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/flights")
-@CrossOrigin(origins = "*") // Allow CORS for frontend integration
 public class FlightController {
     
     private final FlightService flightService;
