@@ -1,0 +1,4 @@
+# Ignore Spring Boot / application property files (local configs)
+# Matches "application.properties" and any environment-specific ones like application-local.properties
+**/application.properties
+**/application-*.properties
