@@ -39,17 +39,22 @@ function normalizeUser(raw) {
 // CRUD
 export async function list() {
   const data = await request('/users', { method: 'GET' })
-  return Array.isArray(data) ? data.map(normalizeUser) : []
+  console.log('Raw API response:', data)
+  // The API returns { success, message, data } format, so extract the data array
+  const users = data && data.data ? data.data : (Array.isArray(data) ? data : [])
+  return users.map(normalizeUser)
 }
 
 export async function findById(id) {
   const data = await request(`/users/${id}`, { method: 'GET' })
-  return data ? normalizeUser(data) : null
+  const user = data && data.data ? data.data : data
+  return user ? normalizeUser(user) : null
 }
 
 export async function create(user) {
   const res = await request('/users', { method: 'POST', body: JSON.stringify(user) })
-  return res ? normalizeUser(res) : res
+  const userData = res && res.data ? res.data : res
+  return userData ? normalizeUser(userData) : res
 }
 
 export async function update(id, user) {
@@ -64,12 +69,14 @@ export async function remove(id) {
 // Lookup helpers
 export async function findByUsername(username) {
   const data = await request(`/users/username/${encodeURIComponent(username)}`, { method: 'GET' })
-  return data ? normalizeUser(data) : null
+  const user = data && data.data ? data.data : data
+  return user ? normalizeUser(user) : null
 }
 
 export async function listByRole(role) {
   const data = await request(`/users/role/${encodeURIComponent(role)}`, { method: 'GET' })
-  return Array.isArray(data) ? data.map(normalizeUser) : []
+  const users = data && data.data ? data.data : (Array.isArray(data) ? data : [])
+  return users.map(normalizeUser)
 }
 
 export async function countByRole(role) {
@@ -82,12 +89,14 @@ export async function countByRole(role) {
 
 export async function listByFlight(flightId) {
   const data = await request(`/users/flight/${flightId}`, { method: 'GET' })
-  return Array.isArray(data) ? data.map(normalizeUser) : []
+  const users = data && data.data ? data.data : (Array.isArray(data) ? data : [])
+  return users.map(normalizeUser)
 }
 
 export async function listStaff() {
   const data = await request('/users/staff', { method: 'GET' })
-  return Array.isArray(data) ? data.map(normalizeUser) : []
+  const users = data && data.data ? data.data : (Array.isArray(data) ? data : [])
+  return users.map(normalizeUser)
 }
 
 export async function exists(username) {

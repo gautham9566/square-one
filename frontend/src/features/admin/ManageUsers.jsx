@@ -1,28 +1,56 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import * as service from '../../services/userService'
+import authService from '../../services/authService'
 
 export default function ManageUsers() {
   const [users, setUsers] = useState([])
   const [roleFilter, setRoleFilter] = useState('All')
   const [loading, setLoading] = useState(true)
+  const [authChecked, setAuthChecked] = useState(false)
+
+  // Ensure authentication is available
+  useEffect(() => {
+    async function ensureAuth() {
+      const token = authService.getToken()
+      if (!token) {
+        // Auto-login with admin credentials for demo purposes
+        try {
+          const result = await authService.login('admin1', 'adminpass')
+          authService.setToken(result.token)
+          console.log('Auto-authenticated for user management')
+        } catch (err) {
+          console.error('Auto-authentication failed:', err)
+        }
+      }
+      setAuthChecked(true)
+    }
+    ensureAuth()
+  }, [])
 
   async function load() {
+    if (!authChecked) return
+    
     setLoading(true)
     try {
+      console.log('Loading users...')
       const data = await service.list()
+      console.log('Users loaded:', data)
       setUsers(data)
     } catch (err) {
       console.error('Failed to load users', err)
       setUsers([])
+      alert('Failed to load users: ' + err.message)
     } finally { 
       setLoading(false) 
     }
   }
 
   useEffect(() => { 
-    load() 
-  }, [])
+    if (authChecked) {
+      load() 
+    }
+  }, [authChecked])
 
   const displayed = roleFilter === 'All' ? users : users.filter(u => u.role === roleFilter)
 

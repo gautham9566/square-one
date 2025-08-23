@@ -30,11 +30,13 @@ export async function findById(id) {
 }
 
 export async function create(flight) {
-  return request('/flights', { method: 'POST', body: JSON.stringify(flight) })
+  const transformedFlight = transformForBackend(flight)
+  return request('/flights', { method: 'POST', body: JSON.stringify(transformedFlight) })
 }
 
 export async function update(id, flight) {
-  return request(`/flights/${id}`, { method: 'PUT', body: JSON.stringify(flight) })
+  const transformedFlight = transformForBackend(flight)
+  return request(`/flights/${id}`, { method: 'PUT', body: JSON.stringify(transformedFlight) })
 }
 
 export async function remove(id) {
@@ -43,10 +45,18 @@ export async function remove(id) {
 
 function normalizeFlight(raw) {
   if (!raw) return raw
+  
+  // Handle date formatting - convert YYYY-MM-DD to readable format
+  let displayDate = raw.flightDate || raw.date;
+  if (displayDate && typeof displayDate === 'string' && displayDate.includes('-')) {
+    const [year, month, day] = displayDate.split('-');
+    displayDate = `${month}/${day}/${year}`;
+  }
+
   return {
     id: raw.flightId || raw.id,
     name: raw.flightName || raw.name,
-    date: raw.flightDate || raw.date,
+    date: displayDate,
     route: raw.route,
     departureTime: raw.departureTime,
     arrivalTime: raw.arrivalTime,
@@ -57,5 +67,40 @@ function normalizeFlight(raw) {
     seatMap: raw.seatMap || (raw.seatMapJson ? JSON.parse(raw.seatMapJson) : []),
     aircraftType: raw.aircraftType
   }
+}
+
+function transformForBackend(flight) {
+  // Transform frontend flight object to backend format
+  const transformed = {
+    // Map frontend field names to backend field names
+    flightName: flight.name || flight.flightName,
+    flightDate: flight.date || flight.flightDate,
+    route: flight.route,
+    departureTime: flight.departureTime,
+    arrivalTime: flight.arrivalTime,
+    aircraftType: flight.aircraftType,
+    totalSeats: flight.totalSeats ? parseInt(flight.totalSeats) : null,
+    // Calculate availableSeats if not provided (assume all seats available for new flights)
+    availableSeats: flight.availableSeats ? parseInt(flight.availableSeats) :
+                   (flight.totalSeats ? parseInt(flight.totalSeats) : null),
+    // Handle services array - convert to JSON string if needed
+    servicesJson: Array.isArray(flight.services) ? JSON.stringify(flight.services) :
+                 (flight.servicesJson || '[]'),
+    // Handle service subtypes
+    serviceSubtypesJson: flight.serviceSubtypes ? JSON.stringify(flight.serviceSubtypes) :
+                        (flight.serviceSubtypesJson || '{}'),
+    // Handle seat map
+    seatMapJson: Array.isArray(flight.seatMap) ? JSON.stringify(flight.seatMap) :
+                (flight.seatMapJson || '[]')
+  }
+
+  // Remove undefined/null values to avoid validation errors
+  Object.keys(transformed).forEach(key => {
+    if (transformed[key] === undefined || transformed[key] === null || transformed[key] === '') {
+      delete transformed[key]
+    }
+  })
+
+  return transformed
 }
 

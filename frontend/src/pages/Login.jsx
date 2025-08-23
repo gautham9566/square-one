@@ -40,6 +40,14 @@ export default function Login() {
         else if (typeof roleFromToken === 'string') chosenRole = roleFromToken
       }
 
+      // Store user information for header display
+      const userInfo = {
+        name: name,
+        role: chosenRole || 'user',
+        username: backendUser.username || username
+      };
+      localStorage.setItem('userInfo', JSON.stringify(userInfo));
+
       if (chosenRole && chosenRole.toLowerCase().includes('admin')) {
         navigate('/admin', { state: { name, role: chosenRole } })
       } else if (chosenRole && chosenRole.toLowerCase().includes('passenger')) {

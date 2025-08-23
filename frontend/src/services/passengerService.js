@@ -26,22 +26,47 @@ function normalizePassenger(raw) {
     address: raw.address,
     passportNumber: raw.passportNumber || raw.passport || null,
     dateOfBirth: raw.dateOfBirth || raw.dob || null,
-    from: raw.from,
-    to: raw.to,
+    origin: raw.origin,
+    destination: raw.destination,
+    from: raw.from || raw.origin, // For backward compatibility
+    to: raw.to || raw.destination, // For backward compatibility
     services: raw.services || (raw.servicesJson ? tryParseJson(raw.servicesJson) : []),
     mealType: raw.mealType,
     extraBaggage: raw.extraBaggage,
     shoppingItems: raw.shoppingItems || (raw.shoppingItemsJson ? tryParseJson(raw.shoppingItemsJson) : []),
     seat: raw.seat || null,
-    checkedIn: raw.checkedIn || false,
-    wheelchair: raw.wheelchair || false,
-    infant: raw.infant || false,
+    // Handle both boolean and Y/N string formats for backward compatibility
+    checkedIn: raw.checkedIn === true || raw.checkedIn === 'Y',
+    wheelchair: raw.wheelchair === true || raw.wheelchair === 'Y',
+    infant: raw.infant === true || raw.infant === 'Y',
     email: raw.email,
   }
 }
 
 function tryParseJson(s) {
   try { return JSON.parse(s) } catch { return null }
+}
+
+function transformForBackend(passenger) {
+  // Transform frontend passenger object to backend format
+  const transformed = {
+    ...passenger,
+    // Keep boolean values as booleans - backend DTOs expect boolean types
+    checkedIn: Boolean(passenger.checkedIn),
+    wheelchair: Boolean(passenger.wheelchair),
+    infant: Boolean(passenger.infant),
+    // Ensure numeric fields have defaults
+    extraBaggage: passenger.extraBaggage || 0,
+    // Keep services and shoppingItems as arrays - backend handles JSON conversion
+    services: Array.isArray(passenger.services) ? passenger.services : [],
+    shoppingItems: Array.isArray(passenger.shoppingItems) ? passenger.shoppingItems : []
+  }
+
+  // Remove frontend-only fields if present
+  delete transformed.from
+  delete transformed.to
+
+  return transformed
 }
 
 export async function list() {
@@ -56,12 +81,14 @@ export async function findById(id) {
 }
 
 export async function create(passenger) {
-  const res = await request('/passengers', { method: 'POST', body: JSON.stringify(passenger) })
+  const transformedPassenger = transformForBackend(passenger)
+  const res = await request('/passengers', { method: 'POST', body: JSON.stringify(transformedPassenger) })
   return res ? normalizePassenger(res) : res
 }
 
 export async function update(id, passenger) {
-  const res = await request(`/passengers/${id}`, { method: 'PUT', body: JSON.stringify(passenger) })
+  const transformedPassenger = transformForBackend(passenger)
+  const res = await request(`/passengers/${id}`, { method: 'PUT', body: JSON.stringify(transformedPassenger) })
   return res ? normalizePassenger(res) : res
 }
 

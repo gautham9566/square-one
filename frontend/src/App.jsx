@@ -9,6 +9,7 @@ import FlightDetails from './features/admin/FlightDetails'
 import TravelHistory from './features/admin/TravelHistory'
 import ManageUsers from './features/admin/ManageUsers'
 import UserDetails from './features/admin/UserDetails'
+import SystemMonitor from './features/admin/SystemMonitor'
 import StaffHome from './pages/StaffHome'
 import PassengerHome from './features/passenger/PassengerHome'
 import PassengerBooking from './features/passenger/PassengerBooking'
@@ -19,6 +20,7 @@ import CheckIn from './features/staff/CheckIn/CheckIn'
 import StaffFlightDetails from './features/staff/CheckIn/FlightDetails'
 import PassengerDetails from './features/staff/CheckIn/PassengerDetails'
 import DemoPage from './pages/DemoPage'
+import UserManagementTest from './pages/UserManagementTest'
 
 export default function App() {
   return (
@@ -26,6 +28,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/demo" element={<DemoPage />} />
+        <Route path="/test-users" element={<UserManagementTest />} />
         <Route path="/admin" element={<AdminHome />}>
           <Route path="passengers" element={<ManagePassengers />} />
           <Route path="passengers/:name" element={<PassengerDetailsAdmin />} />
@@ -38,6 +41,7 @@ export default function App() {
           <Route path="users/new" element={<UserDetails />} />
           <Route path="users/:username" element={<UserDetails />} />
           <Route path="travel-history" element={<TravelHistory />} />
+          <Route path="system-monitor" element={<SystemMonitor />} />
         </Route>
         <Route path="/staff" element={<StaffHome />} />
         {/* Passenger routes */}

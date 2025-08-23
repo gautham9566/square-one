@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import * as flightService from '../../services/flightService'
 import * as service from '../../services/passengerService'
+import PassengerForm from './PassengerForm'
 
 export default function ManagePassengers() {
   const [passengers, setPassengers] = useState([])
   const [search, setSearch] = useState('')
   const [flights, setFlights] = useState([])
+  const [showForm, setShowForm] = useState(false)
+  const [editingPassenger, setEditingPassenger] = useState(null)
   const params = useParams()
   const navigate = useNavigate()
   const routeFlightId = params.flightId ? Number(params.flightId) : null
@@ -57,6 +60,83 @@ export default function ManagePassengers() {
 
   function clearSelection() {
     navigate('/admin/passengers')
+  }
+
+  // CRUD functions
+  const handleAddPassenger = () => {
+    const currentFlight = flights.find(f => f.id === routeFlightId)
+    let origin = '', destination = ''
+    
+    // Parse route format "NYC-LON" to get origin and destination
+    if (currentFlight?.route) {
+      const parts = currentFlight.route.split('-')
+      if (parts.length >= 2) {
+        origin = parts[0]
+        destination = parts[1]
+      }
+    }
+    
+    const initialData = { 
+      flightId: routeFlightId,
+      origin: origin,
+      destination: destination
+    }
+    setEditingPassenger(initialData)
+    setShowForm(true)
+  }
+
+  const handleEditPassenger = (passenger) => {
+    setEditingPassenger(passenger)
+    setShowForm(true)
+  }
+
+  const handleDeletePassenger = async (passenger) => {
+    if (!confirm(`Are you sure you want to delete passenger ${passenger.name}?`)) {
+      return
+    }
+    
+    try {
+      await service.remove(passenger.id)
+      await loadPassengers() // Refresh the list
+    } catch (err) {
+      console.error('Failed to delete passenger', err)
+      alert('Failed to delete passenger. Please try again.')
+    }
+  }
+
+  const handleSavePassenger = async (passengerData) => {
+    try {
+      if (editingPassenger?.id) {
+        await service.update(editingPassenger.id, passengerData)
+      } else {
+        await service.create(passengerData)
+      }
+      await loadPassengers() // Refresh the list
+      setShowForm(false)
+      setEditingPassenger(null)
+    } catch (err) {
+      console.error('Failed to save passenger', err)
+
+      // Parse error message for better user feedback
+      let errorMessage = 'Failed to save passenger. Please try again.'
+      try {
+        const errorData = JSON.parse(err.message)
+        if (errorData.message && errorData.message.includes('Seat') && errorData.message.includes('not available')) {
+          errorMessage = errorData.message + '. Please choose a different seat.'
+        } else if (errorData.message) {
+          errorMessage = errorData.message
+        }
+      } catch (parseErr) {
+        // Use default message if parsing fails
+      }
+
+      alert(errorMessage)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setShowForm(false)
+    setEditingPassenger(null)
   }
 
   return (
@@ -127,7 +207,10 @@ export default function ManagePassengers() {
                   <h1 className="text-2xl font-bold text-gray-900">Flight Passengers</h1>
                   <p className="text-gray-600 mt-1">Manage passengers for this flight</p>
                 </div>
-                <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                <button 
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                  onClick={handleAddPassenger}
+                >
                   Add Passenger
                 </button>
               </div>
@@ -156,7 +239,10 @@ export default function ManagePassengers() {
               {displayedForFlight.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12">
                   <div className="text-gray-500 mb-3">No passengers found</div>
-                  <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                  <button 
+                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                    onClick={handleAddPassenger}
+                  >
                     Add First Passenger
                   </button>
                 </div>
@@ -202,10 +288,16 @@ export default function ManagePassengers() {
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button className="text-blue-600 hover:text-blue-900 mr-4">
+                            <button 
+                              className="text-blue-600 hover:text-blue-900 mr-4"
+                              onClick={() => handleEditPassenger(passenger)}
+                            >
                               Edit
                             </button>
-                            <button className="text-red-600 hover:text-red-900">
+                            <button 
+                              className="text-red-600 hover:text-red-900"
+                              onClick={() => handleDeletePassenger(passenger)}
+                            >
                               Delete
                             </button>
                           </td>
@@ -218,6 +310,30 @@ export default function ManagePassengers() {
             </div>
           </div>
         </>
+      )}
+
+      {/* Modal for Add/Edit Passenger */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">
+                {editingPassenger?.id ? 'Edit Passenger' : 'Add New Passenger'}
+              </h2>
+              <button 
+                onClick={handleCancelEdit}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ×
+              </button>
+            </div>
+            <PassengerForm 
+              initial={editingPassenger || {}}
+              onSave={handleSavePassenger}
+              onCancel={handleCancelEdit}
+            />
+          </div>
+        </div>
       )}
     </div>
   )

@@ -11,6 +11,7 @@ const Layout = ({ children, title, showNavigation = true, user = null }) => {
   const handleLogout = () => {
     // Clear any auth data
     localStorage.removeItem('authToken');
+    localStorage.removeItem('userInfo');
     navigate('/');
   };
 

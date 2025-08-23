@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { findById, create, update, remove, list as listFlights } from '../../services/flightService'
+import { findById, create, update, remove } from '../../services/flightService'
+import { listActive as listActiveRoutes } from '../../services/routeService'
 import { useState, useEffect } from 'react'
 import * as userService from '../../services/userService'
 
@@ -7,7 +8,7 @@ export default function FlightDetails() {
   const { id } = useParams()
   const nav = useNavigate()
   const [found, setFound] = useState(null)
-  const [allFlights, setAllFlights] = useState([])
+  const [allRoutes, setAllRoutes] = useState([])
 
   useEffect(() => {
     let mounted = true
@@ -39,7 +40,7 @@ export default function FlightDetails() {
     departureTime: to24(found.departureTime),
     arrivalTime: to24(found.arrivalTime),
     inflightStaff: found && found.inflightStaff ? (Array.isArray(found.inflightStaff) ? found.inflightStaff : [found.inflightStaff]) : []
-  } : { name: '', route: '', date: '', departureTime: '', arrivalTime: '', totalSeats: '', inflightStaff: [], services: [] }
+  } : { name: '', route: '', date: '', departureTime: '', arrivalTime: '', totalSeats: '', availableSeats: '', inflightStaff: [], services: [] }
   const [f, setF] = useState(initialState)
 
   useEffect(() => {
@@ -49,27 +50,51 @@ export default function FlightDetails() {
       departureTime: to24(found.departureTime),
       arrivalTime: to24(found.arrivalTime),
       inflightStaff: found && found.inflightStaff ? (Array.isArray(found.inflightStaff) ? found.inflightStaff : [found.inflightStaff]) : []
-    } : { name: '', route: '', date: '', departureTime: '', arrivalTime: '', totalSeats: '', inflightStaff: [], services: [] })
+    } : { name: '', route: '', date: '', departureTime: '', arrivalTime: '', totalSeats: '', availableSeats: '', inflightStaff: [], services: [] })
   }, [found])
 
-  // load all flights for route suggestions/dropdown
+  // load all routes from routes table
   useEffect(() => {
     let mounted = true
-    async function load() {
+    async function loadRoutes() {
       try {
-        const list = await listFlights()
+        console.log('Loading routes...')
+        const routes = await listActiveRoutes()
+        console.log('Loaded routes:', routes)
         if (!mounted) return
-        setAllFlights(list || [])
+        setAllRoutes(routes || [])
       } catch (err) {
-        console.error('Failed to load flights', err)
-        if (mounted) setAllFlights([])
+        console.error('Failed to load routes', err)
+        if (mounted) setAllRoutes([])
       }
     }
-    load()
+    loadRoutes()
     return () => { mounted = false }
   }, [])
 
   async function save() {
+    // Basic validation
+    if (!f.name || !f.name.trim()) {
+      alert('Flight name is required')
+      return
+    }
+    if (!f.date) {
+      alert('Flight date is required')
+      return
+    }
+    if (!f.totalSeats || parseInt(f.totalSeats) <= 0) {
+      alert('Total seats must be a positive number')
+      return
+    }
+    if (!f.availableSeats || parseInt(f.availableSeats) < 0) {
+      alert('Available seats must be a non-negative number')
+      return
+    }
+    if (parseInt(f.availableSeats) > parseInt(f.totalSeats)) {
+      alert('Available seats cannot exceed total seats')
+      return
+    }
+
     try {
       if (f.id) {
         await update(f.id, f)
@@ -79,7 +104,19 @@ export default function FlightDetails() {
       nav('/admin/flights')
     } catch (e) {
       console.error('Save failed', e)
-      nav('/admin/flights')
+
+      // Parse error message for better user feedback
+      let errorMessage = 'Failed to save flight. Please try again.'
+      try {
+        const errorData = JSON.parse(e.message)
+        if (errorData.message) {
+          errorMessage = errorData.message
+        }
+      } catch (parseErr) {
+        // Use default message if parsing fails
+      }
+
+      alert(errorMessage)
     }
   }
 
@@ -137,136 +174,341 @@ export default function FlightDetails() {
   }
 
   return (
-    <div className="bg-white p-4 rounded">
-      <div className="flex justify-between items-start">
-        <div>
-          <h2 className="text-xl font-semibold">{f.name || 'New Flight'}</h2>
-          <div className="text-sm text-gray-600">Route: {f.route || '-'}</div>
-        </div>
-        <div className="flex gap-2">
-          <button onClick={() => nav('/admin/flights')} className="px-3 py-1 bg-gray-200 rounded">Back</button>
-          <button onClick={save} className="px-3 py-1 bg-yellow-400 rounded">Save</button>
-          {f.id && <button onClick={del} className="px-3 py-1 bg-red-500 text-white rounded">Delete</button>}
-        </div>
-      </div>
-
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <div>
-          <label className="block">Name</label>
-          <input value={f.name} onChange={e => setF(prev => ({ ...prev, name: e.target.value }))} className="w-full border p-2 rounded" />
-        </div>
-        <div>
-          <label className="block">Route</label>
-            {/* use a dropdown populated from existing routes */}
-            <select value={f.route} onChange={e => setF(prev => ({ ...prev, route: e.target.value }))} className="w-full border p-2 rounded">
-              <option value="">Select route</option>
-              {Array.from(new Set(allFlights.map(x => x.route).filter(Boolean))).map(r => (
-                <option key={r} value={r}>{r}</option>
-              ))}
-            </select>
-        </div>
-        <div>
-          <label className="block">Date</label>
-          <input type="date" value={f.date || ''} onChange={e => setF(prev => ({ ...prev, date: e.target.value }))} className="w-full border p-2 rounded" />
-        </div>
-        <div>
-          <label className="block">Departure Time</label>
-          <input type="time" value={f.departureTime || ''} onChange={e => setF(prev => ({ ...prev, departureTime: e.target.value }))} className="w-full border p-2 rounded" />
-        </div>
-        <div>
-          <label className="block">Arrival Time</label>
-          <input type="time" value={f.arrivalTime || ''} onChange={e => setF(prev => ({ ...prev, arrivalTime: e.target.value }))} className="w-full border p-2 rounded" />
-        </div>
-        <div>
-          <label className="block">Number of seats</label>
-          <input type="number" min="0" value={f.totalSeats || ''} onChange={e => setF(prev => ({ ...prev, totalSeats: e.target.value }))} className="w-full border p-2 rounded" />
-        </div>
-        <div>
-          <label className="block">Assign Inflight Staff</label>
-          <div className="flex gap-2 items-center">
-            <select value={selectedStaff} onChange={e => setSelectedStaff(e.target.value)} className="w-full border p-2 rounded">
-              <option value="">Select staff to add</option>
-              {allUsers.filter(u => u.role === 'inflightStaff').map(u => (
-                <option key={u.username} value={u.username}>{u.name}</option>
-              ))}
-            </select>
-            <button type="button" onClick={() => {
-              if (!selectedStaff) return
-              if ((f.inflightStaff||[]).includes(selectedStaff)) return
-              setF(prev => ({ ...prev, inflightStaff: [...(prev.inflightStaff||[]), selectedStaff] }))
-              setSelectedStaff('')
-            }} className="px-3 py-1 bg-blue-500 text-white rounded">Add</button>
-          </div>
-          {/* assigned staff list */}
-          <div className="mt-2 space-y-2">
-            {(f.inflightStaff || []).map((u, idx) => {
-              const user = allUsers.find(x => x.username === u)
-              return (
-                <div key={u} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                  <div>{user ? user.name : u}</div>
-                  <button type="button" onClick={() => setF(prev => ({ ...prev, inflightStaff: (prev.inflightStaff||[]).filter((_, i) => i !== idx) }))} className="text-red-500">Remove</button>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-        <div>
-          <label className="block">Services</label>
-          <div className="flex gap-2 mt-2">
-            {['Ancillary', 'Meal', 'Shopping'].map(s => (
-              <label key={s} className="inline-flex items-center gap-2">
-                <input type="checkbox" checked={(f.services||[]).includes(s)} onChange={() => toggleService(s)} />
-                <span>{s}</span>
-              </label>
-            ))}
-          </div>
-          {/* Add service section */}
-          <div className="mt-4 border-t pt-3">
-            <label className="block font-medium">Add service</label>
-            <div className="flex gap-2 items-center mt-2">
-              <select value={selectedService} onChange={e => setSelectedService(e.target.value)} className="border p-2 rounded">
-                <option value="">Select service</option>
-                <option value="Ancillary">Ancillary</option>
-                <option value="Meal">Meal</option>
-                <option value="Shopping">Shopping</option>
-              </select>
-              {/* conditional fields */}
-              {selectedService === 'Ancillary' && (
-                <>
-                  <input placeholder="Service name" value={serviceName} onChange={e => setServiceName(e.target.value)} className="border p-2 rounded" />
-                  <input placeholder="Price" value={servicePrice} onChange={e => setServicePrice(e.target.value)} className="border p-2 rounded w-28" />
-                </>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-6">
+        {/* Header */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {f.id ? 'Edit Flight' : 'Add New Flight'}
+              </h1>
+              <p className="text-gray-600 mt-1">
+                {f.id ? `Flight: ${f.name || 'Unnamed'}` : 'Create a new flight schedule'}
+              </p>
+              {f.route && (
+                <p className="text-sm text-blue-600 mt-1">Route: {f.route}</p>
               )}
-              {selectedService === 'Meal' && (
-                <>
-                  <select value={mealType} onChange={e => setMealType(e.target.value)} className="border p-2 rounded">
-                    <option value="Veg">Veg</option>
-                    <option value="Non-Veg">Non Veg</option>
-                  </select>
-                  <input placeholder="Dish name" value={serviceName} onChange={e => setServiceName(e.target.value)} className="border p-2 rounded" />
-                  <input placeholder="Price" value={servicePrice} onChange={e => setServicePrice(e.target.value)} className="border p-2 rounded w-28" />
-                </>
+            </div>
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => nav('/admin/flights')} 
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={save} 
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                {f.id ? 'Update Flight' : 'Create Flight'}
+              </button>
+              {f.id && (
+                <button 
+                  onClick={del} 
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                >
+                  Delete
+                </button>
               )}
-              {selectedService === 'Shopping' && (
-                <>
-                  <input placeholder="Product name" value={serviceName} onChange={e => setServiceName(e.target.value)} className="border p-2 rounded" />
-                  <input placeholder="Price" value={servicePrice} onChange={e => setServicePrice(e.target.value)} className="border p-2 rounded w-28" />
-                </>
-              )}
-              <button type="button" onClick={addService} className="px-3 py-1 bg-blue-500 text-white rounded">Add</button>
             </div>
           </div>
-          {/* display added service subtypes */}
-          <div className="mt-3">
-            {(f.services || []).map((s, i) => {
-              if (['Ancillary', 'Meal', 'Shopping'].includes(s)) return null
-              return (
-                <div key={i} className="flex items-center justify-between bg-gray-50 p-2 rounded mb-2">
-                  <div className="text-sm">{s}</div>
-                  <button type="button" onClick={() => removeServiceAt(i)} className="text-red-500">Remove</button>
+        </div>
+
+        {/* Flight Information Form */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Flight Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Flight Name *
+              </label>
+              <input 
+                type="text"
+                value={f.name} 
+                onChange={e => setF(prev => ({ ...prev, name: e.target.value }))} 
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                placeholder="Enter flight name"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Route *
+              </label>
+              <select
+                value={f.route}
+                onChange={e => setF(prev => ({ ...prev, route: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Select route</option>
+                {allRoutes.map(route => (
+                  <option key={route.routeCode} value={route.routeCode}>
+                    {route.routeCode} - {route.departureCity} ({route.departureAirport}) → {route.arrivalCity} ({route.arrivalAirport})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Flight Date *
+              </label>
+              <input 
+                type="date" 
+                value={f.date || ''} 
+                onChange={e => setF(prev => ({ ...prev, date: e.target.value }))} 
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Total Seats *
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={f.totalSeats || ''}
+                onChange={e => setF(prev => ({ ...prev, totalSeats: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter total seats"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Available Seats *
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={f.availableSeats || ''}
+                onChange={e => setF(prev => ({ ...prev, availableSeats: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter available seats"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Departure Time
+              </label>
+              <input 
+                type="time" 
+                value={f.departureTime || ''} 
+                onChange={e => setF(prev => ({ ...prev, departureTime: e.target.value }))} 
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Arrival Time
+              </label>
+              <input 
+                type="time" 
+                value={f.arrivalTime || ''} 
+                onChange={e => setF(prev => ({ ...prev, arrivalTime: e.target.value }))} 
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+              />
+            </div>
+          </div>
+        </div>
+        {/* Staff Assignment */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Inflight Staff Assignment</h2>
+          <div className="space-y-4">
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Staff Member
+                </label>
+                <select 
+                  value={selectedStaff} 
+                  onChange={e => setSelectedStaff(e.target.value)} 
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select staff to add</option>
+                  {allUsers.filter(u => u.role === 'inflightStaff').map(u => (
+                    <option key={u.username} value={u.username}>{u.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-end">
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    if (!selectedStaff) return
+                    if ((f.inflightStaff||[]).includes(selectedStaff)) return
+                    setF(prev => ({ ...prev, inflightStaff: [...(prev.inflightStaff||[]), selectedStaff] }))
+                    setSelectedStaff('')
+                  }} 
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Add Staff
+                </button>
+              </div>
+            </div>
+            
+            {/* Assigned staff list */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-gray-700">Assigned Staff</h3>
+              {(f.inflightStaff || []).length === 0 ? (
+                <p className="text-sm text-gray-500 italic">No staff assigned yet</p>
+              ) : (
+                (f.inflightStaff || []).map((u, idx) => {
+                  const user = allUsers.find(x => x.username === u)
+                  return (
+                    <div key={u} className="flex items-center justify-between bg-gray-50 p-3 rounded-md">
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium mr-3">
+                          {user?.name ? user.name.charAt(0).toUpperCase() : u.charAt(0).toUpperCase()}
+                        </div>
+                        <span className="font-medium text-gray-900">{user ? user.name : u}</span>
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={() => setF(prev => ({ ...prev, inflightStaff: (prev.inflightStaff||[]).filter((_, i) => i !== idx) }))} 
+                        className="text-red-600 hover:text-red-800 text-sm font-medium"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+          </div>
+        </div>
+        {/* Services */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Flight Services</h2>
+          
+          {/* Basic services checkboxes */}
+          <div className="mb-6">
+            <h3 className="text-sm font-medium text-gray-700 mb-3">Basic Services</h3>
+            <div className="flex flex-wrap gap-4">
+              {['Ancillary', 'Meal', 'Shopping'].map(s => (
+                <label key={s} className="inline-flex items-center gap-2 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={(f.services||[]).includes(s)} 
+                    onChange={() => toggleService(s)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700">{s}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Add custom service section */}
+          <div className="border-t border-gray-200 pt-6">
+            <h3 className="text-sm font-medium text-gray-700 mb-3">Add Custom Service</h3>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Service Type
+                  </label>
+                  <select 
+                    value={selectedService} 
+                    onChange={e => setSelectedService(e.target.value)} 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  >
+                    <option value="">Select service</option>
+                    <option value="Ancillary">Ancillary</option>
+                    <option value="Meal">Meal</option>
+                    <option value="Shopping">Shopping</option>
+                  </select>
                 </div>
-              )
-            })}
+                
+                {/* Conditional fields based on service type */}
+                {selectedService === 'Meal' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Meal Type
+                    </label>
+                    <select 
+                      value={mealType} 
+                      onChange={e => setMealType(e.target.value)} 
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    >
+                      <option value="Veg">Vegetarian</option>
+                      <option value="Non-Veg">Non-Vegetarian</option>
+                    </select>
+                  </div>
+                )}
+                
+                {selectedService && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {selectedService === 'Meal' ? 'Dish Name' : 
+                         selectedService === 'Shopping' ? 'Product Name' : 'Service Name'}
+                      </label>
+                      <input 
+                        type="text"
+                        placeholder={selectedService === 'Meal' ? 'Enter dish name' : 
+                                   selectedService === 'Shopping' ? 'Enter product name' : 'Enter service name'}
+                        value={serviceName} 
+                        onChange={e => setServiceName(e.target.value)} 
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Price ($)
+                      </label>
+                      <input 
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="Enter price" 
+                        value={servicePrice} 
+                        onChange={e => setServicePrice(e.target.value)} 
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" 
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+              
+              {selectedService && (
+                <div className="flex justify-end">
+                  <button 
+                    type="button" 
+                    onClick={addService} 
+                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm"
+                  >
+                    Add Service
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Display added custom services */}
+          <div className="mt-6">
+            <h3 className="text-sm font-medium text-gray-700 mb-3">Custom Services Added</h3>
+            {(f.services || []).filter(s => !['Ancillary', 'Meal', 'Shopping'].includes(s)).length === 0 ? (
+              <p className="text-sm text-gray-500 italic">No custom services added yet</p>
+            ) : (
+              <div className="space-y-2">
+                {(f.services || []).map((s, i) => {
+                  if (['Ancillary', 'Meal', 'Shopping'].includes(s)) return null
+                  return (
+                    <div key={i} className="flex items-center justify-between bg-gray-50 p-3 rounded-md">
+                      <div className="text-sm font-medium text-gray-900">{s}</div>
+                      <button 
+                        type="button" 
+                        onClick={() => removeServiceAt(i)} 
+                        className="text-red-600 hover:text-red-800 text-sm font-medium"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>
