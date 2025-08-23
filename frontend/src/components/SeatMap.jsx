@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const SeatMap = ({ 
   rows = 10, 
@@ -10,6 +10,11 @@ const SeatMap = ({
   className = ''
 }) => {
   const [localSelectedSeats, setLocalSelectedSeats] = useState(selectedSeats);
+  
+  // Update local state when selectedSeats prop changes
+  useEffect(() => {
+    setLocalSelectedSeats(selectedSeats);
+  }, [selectedSeats]);
   
   // Generate seat labels (A, B, C, etc.)
   const getSeatLabel = (index) => String.fromCharCode(65 + index);
@@ -31,9 +36,11 @@ const SeatMap = ({
     
     let newSelectedSeats;
     if (status === 'selected') {
+      // For check-in process, allow deselection
       newSelectedSeats = localSelectedSeats.filter(seat => seat !== seatId);
     } else {
-      newSelectedSeats = [...localSelectedSeats, seatId];
+      // For check-in process, replace selection with new seat (single selection)
+      newSelectedSeats = [seatId];
     }
     
     setLocalSelectedSeats(newSelectedSeats);
@@ -50,13 +57,13 @@ const SeatMap = ({
     
     const isDemo = typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/demo');
     const statusClasses = isDemo ? {
-      available: 'bg-white border-2 border-neutral-300 hover:border-flight-primary hover:bg-flight-light cursor-pointer text-neutral-700',
-      selected: 'bg-flight-primary border-2 border-flight-primary text-white cursor-pointer',
-      unavailable: 'bg-neutral-100 border-2 border-neutral-200 text-neutral-400 cursor-not-allowed',
+      available: 'bg-green-50 border-2 border-green-300 hover:border-green-500 hover:bg-green-100 cursor-pointer text-green-700 shadow-sm',
+      selected: 'bg-blue-600 border-2 border-blue-600 text-white cursor-pointer shadow-md transform scale-105',
+      unavailable: 'bg-red-100 border-2 border-red-300 text-red-500 cursor-not-allowed',
     } : {
-      available: 'bg-white border-2 border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50 cursor-pointer text-neutral-700',
-      selected: 'bg-neutral-700 border-2 border-neutral-700 text-white cursor-pointer',
-      unavailable: 'bg-neutral-100 border-2 border-neutral-200 text-neutral-400 cursor-not-allowed',
+      available: 'bg-green-50 border-2 border-green-300 hover:border-green-500 hover:bg-green-100 cursor-pointer text-green-700 shadow-sm',
+      selected: 'bg-blue-600 border-2 border-blue-600 text-white cursor-pointer shadow-md transform scale-105',
+      unavailable: 'bg-red-100 border-2 border-red-300 text-red-500 cursor-not-allowed',
     };
     
     return (
@@ -66,7 +73,7 @@ const SeatMap = ({
         disabled={status === 'unavailable'}
         aria-label={`Seat ${row}${seatLabel} - ${status}`}
       >
-        {status === 'unavailable' ? '✕' : seatLabel}
+        {status === 'unavailable' ? '✕' : status === 'selected' ? '✓' : seatLabel}
       </button>
     );
   };
@@ -87,39 +94,16 @@ const SeatMap = ({
   const Legend = () => (
     <div className="flex items-center gap-6 p-4 bg-neutral-50 rounded-lg">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-md bg-white border-2 border-neutral-300"></div>
+        <div className="w-8 h-8 rounded-md bg-green-50 border-2 border-green-300"></div>
         <span className="text-sm text-neutral-700">Available</span>
       </div>
-      {(() => {
-        const isDemo = typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/demo');
-        return (
-          <div className="flex items-center gap-2">
-            <div className={`w-8 h-8 rounded-md ${isDemo ? 'bg-flight-primary border-2 border-flight-primary' : 'bg-neutral-700 border-2 border-neutral-700'}`}></div>
-            <span className="text-sm text-neutral-700">Selected</span>
-          </div>
-        )
-      })()}
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-md bg-neutral-100 border-2 border-neutral-200 flex items-center justify-center text-neutral-400 text-xs">✕</div>
-        <span className="text-sm text-neutral-700">Unavailable</span>
-      </div>
-      <div className="flex items-center gap-2 ml-auto">
-        <svg className="w-5 h-5 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
-        <span className="text-sm text-neutral-700">Lavatory</span>
+        <div className="w-8 h-8 rounded-md bg-blue-600 border-2 border-blue-600 flex items-center justify-center text-white text-xs font-bold">✓</div>
+        <span className="text-sm text-neutral-700">Selected</span>
       </div>
       <div className="flex items-center gap-2">
-        <svg className="w-5 h-5 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span className="text-sm text-neutral-700">Exit</span>
-      </div>
-      <div className="flex items-center gap-2">
-        <svg className="w-5 h-5 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-        </svg>
-        <span className="text-sm text-neutral-700">Galley</span>
+        <div className="w-8 h-8 rounded-md bg-red-100 border-2 border-red-300 flex items-center justify-center text-red-500 text-xs">✕</div>
+        <span className="text-sm text-neutral-700">Occupied</span>
       </div>
     </div>
   );
@@ -147,7 +131,7 @@ const SeatMap = ({
             {/* Seat grid */}
             <div className="space-y-3">
               {Array.from({ length: rows }, (_, rowIndex) => {
-                const rowNumber = rowIndex + 28; // Starting from row 28 as in reference
+                const rowNumber = rowIndex + 1; // Starting from row 1
                 const leftSeats = Math.floor(seatsPerRow / 2);
                 const rightSeats = seatsPerRow - leftSeats;
                 

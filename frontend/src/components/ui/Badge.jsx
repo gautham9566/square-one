@@ -16,6 +16,10 @@ const Badge = ({
     default: 'bg-neutral-100 text-neutral-700',
     primary: isDemo ? 'bg-flight-primary/10 text-flight-primary' : 'bg-neutral-100 text-neutral-700',
     secondary: 'bg-neutral-200 text-neutral-800',
+    success: 'bg-green-100 text-green-700',
+    warning: 'bg-amber-100 text-amber-700',
+    danger: 'bg-red-100 text-red-700',
+    info: 'bg-blue-100 text-blue-700',
     
     // Status variants (from reference)
     pending: 'bg-status-pending/10 text-status-pending',
