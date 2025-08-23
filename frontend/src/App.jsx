@@ -21,6 +21,7 @@ import StaffFlightDetails from './features/staff/CheckIn/FlightDetails'
 import PassengerDetails from './features/staff/CheckIn/PassengerDetails'
 import DemoPage from './pages/DemoPage'
 import UserManagementTest from './pages/UserManagementTest'
+import TestRoutesPage from './pages/TestRoutesPage'
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/" element={<Login />} />
         <Route path="/demo" element={<DemoPage />} />
         <Route path="/test-users" element={<UserManagementTest />} />
+        <Route path="/test-routes" element={<TestRoutesPage />} />
         <Route path="/admin" element={<AdminHome />}>
           <Route path="passengers" element={<ManagePassengers />} />
           <Route path="passengers/:name" element={<PassengerDetailsAdmin />} />

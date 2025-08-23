@@ -1,12 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import * as flightService from '../../services/flightService'
+import * as routeService from '../../services/routeService'
+import authService from '../../services/authService'
 import '../../styles/demo.css'
 import Layout from '../../components/Layout'
 import Button from '../../components/ui/Button'
 import Input, { LocationInput, DateInput } from '../../components/ui/Input'
 import Card, { CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
+import AutocompleteLocationInput from '../../components/ui/AutocompleteLocationInput'
+import MockLocationInput from '../../components/ui/MockLocationInput'
 
 export default function PassengerHome({ locationState }) {
   // locationState is optional; but when navigated after login we can pass user info
@@ -15,13 +19,121 @@ export default function PassengerHome({ locationState }) {
   const [to, setTo] = useState('')
   const [date, setDate] = useState('')
   const [results, setResults] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
 
-  function handleSearch(e) {
+  // Check authentication status on component mount
+  useEffect(() => {
+    const token = authService.getToken()
+    setIsAuthenticated(!!token)
+    if (!token) {
+      console.warn('No authentication token found. Please log in to search flights.')
+    }
+  }, [])
+
+  async function handleSearch(e) {
     e.preventDefault()
-    // simple route match on from/to (route strings are e.g. 'NYC-LON')
-    const routeQuery = `${from.toUpperCase()}-${to.toUpperCase()}`
-    const matched = (allFlights || []).filter((f) => f.route === routeQuery && (!date || f.date === date))
-    setResults(matched)
+    if (!from || !to) {
+      alert('Please enter both departure and destination locations')
+      return
+    }
+
+    if (!isAuthenticated) {
+      alert('Please log in first to search flights')
+      navigate('/')
+      return
+    }
+
+    setLoading(true)
+    try {
+      console.log('Searching for flights from', from, 'to', to, 'on', date)
+
+      // Search for matching routes based on cities or airports
+      const routes = await routeService.searchRoutes(from, to)
+      console.log('Found routes:', routes)
+
+      // Get all flights
+      const allFlights = await flightService.list()
+      console.log('All flights:', allFlights)
+
+      // Filter flights based on matching routes
+      const matchedFlights = allFlights.filter(flight => {
+        console.log(`Checking flight: ${flight.name} (${flight.route}) on ${flight.date}`)
+
+        // If no routes found, fall back to direct flight route matching
+        let routeMatches = false
+
+        if (routes.length === 0) {
+          // Direct matching against flight route with more flexible matching
+          const fromUpper = from.toUpperCase()
+          const toUpper = to.toUpperCase()
+          const flightRouteUpper = flight.route ? flight.route.toUpperCase() : ''
+
+          routeMatches = flightRouteUpper && (
+            flightRouteUpper.includes(fromUpper) && flightRouteUpper.includes(toUpper)
+          )
+          console.log(`  No routes found, using direct matching: flight="${flightRouteUpper}", from="${fromUpper}", to="${toUpper}", matches=${routeMatches}`)
+        } else {
+          // Match by route code or by comparing departure/arrival cities
+          routeMatches = routes.some(route => {
+            const exactMatch = flight.route === route.routeCode
+
+            // Check various matching scenarios
+            const flightRouteUpper = flight.route ? flight.route.toUpperCase() : ''
+            const fromUpper = from.toUpperCase()
+            const toUpper = to.toUpperCase()
+
+            const cityMatch = flightRouteUpper && (
+              flightRouteUpper.includes(fromUpper) && flightRouteUpper.includes(toUpper)
+            )
+
+            // Check if the route cities match the search terms (more flexible matching)
+            const fromLower = from.toLowerCase()
+            const toLower = to.toLowerCase()
+
+            const cityToRouteMatch = (
+              (route.departureCity && route.departureCity.toLowerCase().includes(fromLower)) ||
+              (route.departureAirport && route.departureAirport.toLowerCase().includes(fromLower)) ||
+              (fromLower.includes(route.departureCity ? route.departureCity.toLowerCase() : '')) ||
+              (fromLower.includes(route.departureAirport ? route.departureAirport.toLowerCase() : ''))
+            ) && (
+              (route.arrivalCity && route.arrivalCity.toLowerCase().includes(toLower)) ||
+              (route.arrivalAirport && route.arrivalAirport.toLowerCase().includes(toLower)) ||
+              (toLower.includes(route.arrivalCity ? route.arrivalCity.toLowerCase() : '')) ||
+              (toLower.includes(route.arrivalAirport ? route.arrivalAirport.toLowerCase() : ''))
+            )
+
+            console.log(`  Route check: flight.route="${flight.route}", route.routeCode="${route.routeCode}"`)
+            console.log(`    exactMatch=${exactMatch}, cityMatch=${cityMatch}, cityToRouteMatch=${cityToRouteMatch}`)
+            console.log(`    route cities: ${route.departureCity} -> ${route.arrivalCity}`)
+
+            return exactMatch || cityMatch || cityToRouteMatch
+          })
+        }
+
+        // Handle date comparison - convert HTML date input (YYYY-MM-DD) to display format (MM/DD/YYYY)
+        let dateMatches = true
+        if (date) {
+          const [year, month, day] = date.split('-')
+          const displayDate = `${month}/${day}/${year}`
+          dateMatches = flight.date === displayDate
+          console.log(`  Date comparison: flight.date="${flight.date}", input date="${date}", converted="${displayDate}", matches=${dateMatches}`)
+        }
+
+        const finalMatch = routeMatches && dateMatches
+        console.log(`  Final match result: ${finalMatch} (routeMatches=${routeMatches}, dateMatches=${dateMatches})`)
+        return finalMatch
+      })
+
+      console.log('Matched flights:', matchedFlights)
+      setResults(matchedFlights)
+    } catch (error) {
+      console.error('Error searching flights:', error)
+      alert(`Error searching flights: ${error.message}. Please make sure you are logged in.`)
+      setResults([])
+    } finally {
+      setLoading(false)
+    }
   }
 
   // Example passenger user - in real app this would come from auth context/state
@@ -34,6 +146,23 @@ export default function PassengerHome({ locationState }) {
     <Layout title="Passenger Dashboard" showNavigation={true} user={passengerUser}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
+          {!isAuthenticated && (
+            <Card variant="warning">
+              <CardHeader>
+                <CardTitle>Authentication Required</CardTitle>
+                <CardDescription>
+                  You need to log in to search and book flights.
+                  <Button
+                    variant="link"
+                    onClick={() => navigate('/')}
+                    className="ml-2 p-0 h-auto text-blue-600 underline"
+                  >
+                    Click here to log in
+                  </Button>
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          )}
           <Card variant="flight">
             <CardHeader>
               <CardTitle>Search Flights</CardTitle>
@@ -41,17 +170,19 @@ export default function PassengerHome({ locationState }) {
             </CardHeader>
             <CardBody>
               <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <LocationInput
+                <MockLocationInput
                   label="From"
                   value={from}
                   onChange={(e) => setFrom(e.target.value)}
-                  placeholder="e.g. NYC"
+                  type="departure"
+                  placeholder="Departure city or airport"
                 />
-                <LocationInput
+                <MockLocationInput
                   label="To"
                   value={to}
                   onChange={(e) => setTo(e.target.value)}
-                  placeholder="e.g. LON"
+                  type="arrival"
+                  placeholder="Destination city or airport"
                 />
                 <DateInput
                   label="Departure Date"
@@ -59,7 +190,7 @@ export default function PassengerHome({ locationState }) {
                   onChange={(e) => setDate(e.target.value)}
                 />
                 <div className="flex items-end">
-                  <Button type="submit" variant="primary" fullWidth>
+                  <Button type="submit" variant="primary" fullWidth loading={loading}>
                     Search Flights
                   </Button>
                 </div>

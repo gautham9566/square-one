@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import * as flightService from '../../services/flightService'
 import * as userService from '../../services/userService'
 import * as passengerService from '../../services/passengerService'
+import * as routeService from '../../services/routeService'
 import Layout from '../../components/Layout'
 import Card, { CardHeader, CardTitle, CardBody, CardFooter } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
@@ -10,6 +11,8 @@ import Input from '../../components/ui/Input'
 import Select from '../../components/ui/Select'
 import FlightSearchResults from '../../components/FlightSearchResults'
 import SeatMap from '../../components/SeatMap'
+import AutocompleteLocationInput from '../../components/ui/AutocompleteLocationInput'
+import MockLocationInput from '../../components/ui/MockLocationInput'
 
 export default function PassengerBooking() {
   const { state } = useLocation()
@@ -118,7 +121,9 @@ export default function PassengerBooking() {
   }
 
   const handleSearchChange = (e) => {
-    setSearchForm({ ...searchForm, [e.target.name]: e.target.value })
+    const name = e.target.name
+    const value = e.target.value
+    setSearchForm({ ...searchForm, [name]: value })
   }
 
   const handlePassengerChange = (e) => {
@@ -147,11 +152,35 @@ export default function PassengerBooking() {
   }
 
   const handleSearchFlights = async () => {
+    if (!searchForm.from || !searchForm.to) {
+      alert('Please enter both departure and destination locations')
+      return
+    }
+
     setLoading(true)
-    // Mock search - in real app, this would call an API
-    setTimeout(() => {
+    try {
+      // Search for matching routes based on cities or airports
+      const routes = await routeService.searchRoutes(searchForm.from, searchForm.to)
+      
+      // Get all flights
+      const allFlights = await flightService.list()
+      
+      // Filter flights based on matching routes
+      const matchedFlights = allFlights.filter(flight => {
+        // Match by route code or by comparing departure/arrival cities
+        return routes.some(route => 
+          flight.route === route.routeCode ||
+          (flight.route && flight.route.includes(searchForm.from.toUpperCase()) && flight.route.includes(searchForm.to.toUpperCase()))
+        ) && (!searchForm.departureDate || flight.date === searchForm.departureDate)
+      })
+      
+      setFlights(matchedFlights)
+    } catch (error) {
+      console.error('Error searching flights:', error)
+      setFlights([])
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   const handleConfirmBooking = async () => {
@@ -229,19 +258,21 @@ export default function PassengerBooking() {
         </CardHeader>
         <CardBody>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Input
+            <MockLocationInput
               label="From"
-              name="from"
               value={searchForm.from}
               onChange={handleSearchChange}
-              placeholder="Departure city"
+              name="from"
+              type="departure"
+              placeholder="Departure city or airport"
             />
-            <Input
+            <MockLocationInput
               label="To"
-              name="to"
               value={searchForm.to}
               onChange={handleSearchChange}
-              placeholder="Destination city"
+              name="to"
+              type="arrival"
+              placeholder="Destination city or airport"
             />
             <Input
               label="Departure Date"
