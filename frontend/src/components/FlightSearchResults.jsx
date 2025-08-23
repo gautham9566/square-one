@@ -78,14 +78,17 @@ const FlightSearchResults = ({
     }
   };
 
+  const isDemo = typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/demo');
+  const containerClass = isDemo ? 'min-h-screen bg-gradient-to-b from-flight-bg to-blue-200' : 'min-h-screen bg-neutral-50';
+
   return (
-    <div className={`min-h-screen bg-gradient-to-b from-flight-bg to-blue-200 ${className}`}>
+    <div className={`${containerClass} ${className}`}>
       {/* Header */}
       <div className="bg-white shadow-sm">
         <div className="container-flight py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <svg className="w-6 h-6 text-flight-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`w-6 h-6 ${isDemo ? 'text-flight-primary' : 'text-neutral-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
               <h1 className="text-xl font-semibold text-neutral-900">Flight Booking</h1>
@@ -101,13 +104,17 @@ const FlightSearchResults = ({
               
               <button className="text-neutral-700 hover:text-neutral-900">Explore</button>
               
-              <button className="flex items-center gap-2">
-                <img src="/api/placeholder/24/16" alt="USA" className="w-6 h-4 rounded" />
-                <span className="text-neutral-700">USA</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
+              {typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/demo') ? (
+                <button className="flex items-center gap-2">
+                  <img src="/api/placeholder/24/16" alt="USA" className="w-6 h-4 rounded" />
+                  <span className="text-neutral-700">USA</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              ) : (
+                <button className="text-neutral-700 hover:text-neutral-900">USA</button>
+              )}
               
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-neutral-300"></div>
@@ -180,7 +187,7 @@ const FlightSearchResults = ({
                   value="oneWay"
                   checked={searchParams.tripType === 'oneWay'}
                   onChange={(e) => setSearchParams({...searchParams, tripType: e.target.value})}
-                  className="w-4 h-4 text-flight-primary focus:ring-flight-primary"
+                  className={`${isDemo ? 'w-4 h-4 text-flight-primary focus:ring-flight-primary' : 'w-4 h-4 text-neutral-600 focus:ring-neutral-400'}`}
                 />
                 <span className="text-sm text-neutral-700">One Way</span>
               </label>
@@ -192,7 +199,7 @@ const FlightSearchResults = ({
                   value="return"
                   checked={searchParams.tripType === 'return'}
                   onChange={(e) => setSearchParams({...searchParams, tripType: e.target.value})}
-                  className="w-4 h-4 text-flight-primary focus:ring-flight-primary"
+                  className={`${isDemo ? 'w-4 h-4 text-flight-primary focus:ring-flight-primary' : 'w-4 h-4 text-neutral-600 focus:ring-neutral-400'}`}
                 />
                 <span className="text-sm text-neutral-700">Return</span>
               </label>
@@ -204,7 +211,7 @@ const FlightSearchResults = ({
                   value="multiCity"
                   checked={searchParams.tripType === 'multiCity'}
                   onChange={(e) => setSearchParams({...searchParams, tripType: e.target.value})}
-                  className="w-4 h-4 text-flight-primary focus:ring-flight-primary"
+                  className={`${isDemo ? 'w-4 h-4 text-flight-primary focus:ring-flight-primary' : 'w-4 h-4 text-neutral-600 focus:ring-neutral-400'}`}
                 />
                 <span className="text-sm text-neutral-700">Multi City</span>
               </label>
@@ -212,7 +219,7 @@ const FlightSearchResults = ({
               <select 
                 value={searchParams.classType}
                 onChange={(e) => setSearchParams({...searchParams, classType: e.target.value})}
-                className="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-flight-primary focus:border-transparent"
+                className={`${isDemo ? 'px-3 py-1.5 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-flight-primary focus:border-transparent' : 'px-3 py-1.5 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-neutral-400 focus:border-transparent'}`}
               >
                 <option>1 Adult</option>
                 <option>2 Adults</option>
@@ -222,7 +229,7 @@ const FlightSearchResults = ({
               <select 
                 value={searchParams.economyType}
                 onChange={(e) => setSearchParams({...searchParams, economyType: e.target.value})}
-                className="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-flight-primary focus:border-transparent"
+                className={`${isDemo ? 'px-3 py-1.5 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-flight-primary focus:border-transparent' : 'px-3 py-1.5 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-neutral-400 focus:border-transparent'}`}
               >
                 <option>Economy</option>
                 <option>Business</option>
@@ -230,7 +237,7 @@ const FlightSearchResults = ({
               </select>
             </div>
             
-            <Button variant="primary" onClick={handleSearch} className="px-8">
+              <Button variant="primary" onClick={handleSearch} className="px-8">
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
@@ -248,8 +255,8 @@ const FlightSearchResults = ({
             <button
               onClick={() => setActiveTab('cheapest')}
               className={`pb-2 border-b-2 transition-colors ${
-                activeTab === 'cheapest' 
-                  ? 'border-flight-primary text-flight-primary font-medium' 
+                activeTab === 'cheapest'
+                  ? (isDemo ? 'border-flight-primary text-flight-primary font-medium' : 'border-neutral-300 text-neutral-900 font-medium')
                   : 'border-transparent text-neutral-600 hover:text-neutral-900'
               }`}
             >
@@ -260,8 +267,8 @@ const FlightSearchResults = ({
             <button
               onClick={() => setActiveTab('fastest')}
               className={`pb-2 border-b-2 transition-colors ${
-                activeTab === 'fastest' 
-                  ? 'border-flight-primary text-flight-primary font-medium' 
+                activeTab === 'fastest'
+                  ? (isDemo ? 'border-flight-primary text-flight-primary font-medium' : 'border-neutral-300 text-neutral-900 font-medium')
                   : 'border-transparent text-neutral-600 hover:text-neutral-900'
               }`}
             >
@@ -313,7 +320,7 @@ const FlightSearchResults = ({
           
           {/* View More */}
           <div className="flex justify-center mt-6">
-            <Button variant="ghost" className="text-flight-primary">
+            <Button variant="ghost" className={isDemo ? 'text-flight-primary' : 'text-neutral-700'}>
               View details
               <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />

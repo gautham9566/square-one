@@ -149,12 +149,14 @@ export const FlightCard = ({
   className = '',
   ...props 
 }) => {
+  const isDemo = typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/demo');
+
   return (
     <Card variant="flight" hover className={className} {...props}>
       <div className="flex items-center justify-between">
         {/* Airline and Flight Info */}
         <div className="flex items-center gap-6">
-          {logo && (
+          {logo && isDemo && (
             <div className="w-12 h-12 flex items-center justify-center">
               <img src={logo} alt={airline} className="max-w-full max-h-full object-contain" />
             </div>
@@ -191,10 +193,7 @@ export const FlightCard = ({
           </div>
           
           {onBook && (
-            <button
-              onClick={onBook}
-              className="bg-flight-primary hover:bg-flight-dark text-white font-medium px-6 py-2.5 rounded-md shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5"
-            >
+            <button onClick={onBook} className={isDemo ? 'bg-flight-primary hover:bg-flight-dark text-white font-medium px-6 py-2.5 rounded-md shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5' : 'bg-neutral-200 text-neutral-900 font-medium px-6 py-2.5 rounded-md transition-all duration-200'}>
               Book Now
             </button>
           )}
@@ -231,18 +230,21 @@ export const TripCard = ({
         </div>
         
         {/* Progress indicator */}
-        {progress.length > 0 && (
-          <div className="flex items-center justify-between">
-            {progress.map((step, index) => (
-              <React.Fragment key={index}>
-                <div className={`w-3 h-3 rounded-full ${step.completed ? 'bg-admin-primary' : 'bg-neutral-300'}`} />
-                {index < progress.length - 1 && (
-                  <div className={`flex-1 h-0.5 mx-1 ${step.completed && progress[index + 1]?.completed ? 'bg-admin-primary' : 'bg-neutral-300'}`} />
-                )}
-              </React.Fragment>
-            ))}
-          </div>
-        )}
+        {progress.length > 0 && (() => {
+          const isDemo = typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/demo');
+          return (
+            <div className="flex items-center justify-between">
+              {progress.map((step, index) => (
+                <React.Fragment key={index}>
+                  <div className={`w-3 h-3 rounded-full ${step.completed ? (isDemo ? 'bg-admin-primary' : 'bg-neutral-700') : 'bg-neutral-300'}`} />
+                  {index < progress.length - 1 && (
+                    <div className={`flex-1 h-0.5 mx-1 ${(step.completed && progress[index + 1]?.completed) ? (isDemo ? 'bg-admin-primary' : 'bg-neutral-700') : 'bg-neutral-300'}`} />
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+          )
+        })()}
         
         <div className="grid grid-cols-2 gap-4">
           <div>

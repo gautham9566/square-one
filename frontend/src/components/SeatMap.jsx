@@ -48,9 +48,14 @@ const SeatMap = ({
     
     const baseClasses = 'w-12 h-12 rounded-lg flex items-center justify-center text-sm font-medium transition-all duration-200';
     
-    const statusClasses = {
+    const isDemo = typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/demo');
+    const statusClasses = isDemo ? {
       available: 'bg-white border-2 border-neutral-300 hover:border-flight-primary hover:bg-flight-light cursor-pointer text-neutral-700',
       selected: 'bg-flight-primary border-2 border-flight-primary text-white cursor-pointer',
+      unavailable: 'bg-neutral-100 border-2 border-neutral-200 text-neutral-400 cursor-not-allowed',
+    } : {
+      available: 'bg-white border-2 border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50 cursor-pointer text-neutral-700',
+      selected: 'bg-neutral-700 border-2 border-neutral-700 text-white cursor-pointer',
       unavailable: 'bg-neutral-100 border-2 border-neutral-200 text-neutral-400 cursor-not-allowed',
     };
     
@@ -85,10 +90,15 @@ const SeatMap = ({
         <div className="w-8 h-8 rounded-md bg-white border-2 border-neutral-300"></div>
         <span className="text-sm text-neutral-700">Available</span>
       </div>
-      <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-md bg-flight-primary border-2 border-flight-primary"></div>
-        <span className="text-sm text-neutral-700">Selected</span>
-      </div>
+      {(() => {
+        const isDemo = typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/demo');
+        return (
+          <div className="flex items-center gap-2">
+            <div className={`w-8 h-8 rounded-md ${isDemo ? 'bg-flight-primary border-2 border-flight-primary' : 'bg-neutral-700 border-2 border-neutral-700'}`}></div>
+            <span className="text-sm text-neutral-700">Selected</span>
+          </div>
+        )
+      })()}
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-md bg-neutral-100 border-2 border-neutral-200 flex items-center justify-center text-neutral-400 text-xs">✕</div>
         <span className="text-sm text-neutral-700">Unavailable</span>

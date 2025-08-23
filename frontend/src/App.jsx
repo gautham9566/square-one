@@ -27,7 +27,6 @@ export default function App() {
         <Route path="/" element={<Login />} />
         <Route path="/demo" element={<DemoPage />} />
         <Route path="/admin" element={<AdminHome />}>
-          <Route index element={<div className="p-6">Select an admin area from the navigation above.</div>} />
           <Route path="passengers" element={<ManagePassengers />} />
           <Route path="passengers/:name" element={<PassengerDetailsAdmin />} />
           <Route path="passengers/:flightId/passengerlist" element={<ManagePassengers />} />

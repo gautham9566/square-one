@@ -10,10 +10,11 @@ const Badge = ({
 }) => {
   const baseClasses = 'inline-flex items-center font-medium transition-colors duration-200';
   
+  const isDemo = typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/demo');
   const variants = {
     // Default variants
     default: 'bg-neutral-100 text-neutral-700',
-    primary: 'bg-flight-primary/10 text-flight-primary',
+    primary: isDemo ? 'bg-flight-primary/10 text-flight-primary' : 'bg-neutral-100 text-neutral-700',
     secondary: 'bg-neutral-200 text-neutral-800',
     
     // Status variants (from reference)
@@ -29,14 +30,14 @@ const Badge = ({
     departed: 'bg-purple-100 text-purple-700',
     
     // Admin variants
-    admin: 'bg-admin-primary/10 text-admin-primary',
+    admin: isDemo ? 'bg-admin-primary/10 text-admin-primary' : 'bg-neutral-100 text-neutral-700',
     adminSuccess: 'bg-green-100 text-green-700',
     adminWarning: 'bg-amber-100 text-amber-700',
     adminDanger: 'bg-red-100 text-red-700',
     
     // Outline variants
     outline: 'border border-neutral-300 text-neutral-700',
-    outlinePrimary: 'border border-flight-primary text-flight-primary',
+    outlinePrimary: isDemo ? 'border border-flight-primary text-flight-primary' : 'border border-neutral-300 text-neutral-700',
     outlineSuccess: 'border border-status-completed text-status-completed',
     outlineDanger: 'border border-status-refunded text-status-refunded',
   };

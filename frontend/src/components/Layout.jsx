@@ -4,15 +4,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Button from './ui/Button';
 import Badge from './ui/Badge';
 
-const Layout = ({ children, title, showNavigation = true }) => {
+const Layout = ({ children, title, showNavigation = true, user = null }) => {
   const location = useLocation();
   const navigate = useNavigate();
-
-  const navigationItems = [
-    { path: '/admin', label: 'Admin', icon: '👤' },
-    { path: '/staff', label: 'Staff', icon: '👥' },
-    { path: '/passenger', label: 'Passenger', icon: '✈️' }
-  ];
 
   const handleLogout = () => {
     // Clear any auth data
@@ -28,61 +22,52 @@ const Layout = ({ children, title, showNavigation = true }) => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-6">
               <Link to="/" className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-flight-primary to-admin-primary rounded-xl flex items-center justify-center shadow-md">
-                  <span className="text-white font-bold text-lg">✈</span>
-                </div>
+                {(() => {
+                  const isDemo = typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/demo');
+                  const logoBg = isDemo ? 'bg-gradient-to-br from-flight-primary to-admin-primary' : 'bg-neutral-300';
+                  const userBg = isDemo ? 'bg-gradient-to-br from-admin-primary to-admin-dark' : 'bg-neutral-400';
+                  return (
+                    <>
+                      <div className={`w-10 h-10 ${logoBg} rounded-xl flex items-center justify-center shadow-md`}>
+                        <span className="text-white font-bold text-lg">✈</span>
+                      </div>
+                    </>
+                  )
+                })()}
                 <div>
-                  <span className="font-bold text-xl text-neutral-900">AirlineMS</span>
+                  <span className="font-bold text-xl text-neutral-900">Airline</span>
                   <div className="text-xs text-neutral-500">Management System</div>
                 </div>
               </Link>
               {title && (
-                <div className="hidden md:block">
-                  <div className="w-px h-6 bg-neutral-300"></div>
-                  <span className="ml-6 text-lg font-semibold text-neutral-700">{title}</span>
-                </div>
+                <>
+                  <div className="hidden md:block w-px h-6 bg-neutral-300 mx-4"></div>
+                  <div className="hidden md:block">
+                    <span className="text-lg font-semibold text-neutral-700">{title}</span>
+                  </div>
+                </>
               )}
             </div>
 
             <div className="flex items-center space-x-6">
-              {showNavigation && (
-                <nav className="hidden md:flex space-x-2">
-                  {navigationItems.map((item) => (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                        location.pathname.startsWith(item.path)
-                          ? 'bg-flight-primary text-white shadow-md'
-                          : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
-                      }`}
-                    >
-                      <span className="mr-2 text-base">{item.icon}</span>
-                      {item.label}
-                    </Link>
-                  ))}
-                </nav>
-              )}
-
               <div className="flex items-center space-x-4">
-                {/* Notifications */}
-                <div className="relative">
-                  <button className="p-2 text-neutral-400 hover:text-neutral-600 transition-colors">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                    </svg>
-                  </button>
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-status-refunded rounded-full"></div>
-                </div>
-
                 {/* User Menu */}
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-admin-primary to-admin-dark rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-semibold">A</span>
-                  </div>
+                  {(() => {
+                    const isDemo = typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/demo');
+                    const userBg = isDemo ? 'bg-gradient-to-br from-admin-primary to-admin-dark' : 'bg-neutral-400';
+                    const userName = user?.name || 'User';
+                    const userRole = user?.role || 'User';
+                    const userInitial = userName.charAt(0).toUpperCase();
+                    return (
+                      <div className={`w-8 h-8 ${userBg} rounded-full flex items-center justify-center`}>
+                        <span className="text-white text-sm font-semibold">{userInitial}</span>
+                      </div>
+                    )
+                  })()}
                   <div className="hidden sm:block">
-                    <div className="text-sm font-medium text-neutral-900">Admin User</div>
-                    <div className="text-xs text-neutral-500">Administrator</div>
+                    <div className="text-sm font-medium text-neutral-900">{user?.name || 'User'}</div>
+                    <div className="text-xs text-neutral-500">{user?.role || 'User'}</div>
                   </div>
                   <Button variant="ghost" size="sm" onClick={handleLogout}>
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -126,6 +126,7 @@ export default function PassengerDetails({ passenger, flight, onClose, onUpdate 
                   const subtypes = (flight && flight.serviceSubtypes && flight.serviceSubtypes[service]) || []
                   const key = service === 'Meal' ? 'mealName' : service === 'Ancillary' ? 'ancillaryItem' : 'shoppingItems'
 
+                  const isDemo = typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/demo');
                   if (subtypes.length > 0) {
                     if (service === 'Shopping') {
                       return (
@@ -139,8 +140,7 @@ export default function PassengerDetails({ passenger, flight, onClose, onUpdate 
                                 const opts = Array.from(e.target.selectedOptions).map(o => o.value)
                                 setSelectedSubService({ ...selectedSubService, shoppingItems: opts })
                               }}
-                              className="px-3 py-2 border rounded w-full"
-                              style={{ maxHeight: '160px' }}
+                              className={isDemo ? 'px-3 py-2 border rounded w-full max-h-40 overflow-auto' : 'px-3 py-2 border rounded w-full'}
                             >
                               {subtypes.map((s) => <option key={s} value={s}>{s}</option>)}
                             </select>

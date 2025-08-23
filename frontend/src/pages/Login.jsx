@@ -125,8 +125,8 @@ export default function Login() {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setUsername('admin');
-                  setPassword('admin123');
+                  setUsername('admin1');
+                  setPassword('adminpass');
                 }}
                 disabled={loading}
               >
@@ -136,19 +136,29 @@ export default function Login() {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setUsername('staff');
-                  setPassword('staff123');
+                  setUsername('checkin1');
+                  setPassword('checkinpass');
                 }}
                 disabled={loading}
               >
-                Staff
+                CheckinStaff
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setUsername('passenger');
-                  setPassword('pass123');
+                  setUsername('inflight1');
+                  setPassword('inflightpass');
+                }}
+                disabled={loading}
+              > inflightStaff
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setUsername('passenger1');
+                  setPassword('passpass');
                 }}
                 disabled={loading}
               >

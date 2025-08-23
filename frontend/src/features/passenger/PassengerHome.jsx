@@ -1,6 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import * as flightService from '../../services/flightService'
+import '../../styles/demo.css'
+import Layout from '../../components/Layout'
+import Button from '../../components/ui/Button'
+import Input, { LocationInput, DateInput } from '../../components/ui/Input'
+import Card, { CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '../../components/ui/Card'
+import Badge from '../../components/ui/Badge'
 
 export default function PassengerHome({ locationState }) {
   // locationState is optional; but when navigated after login we can pass user info
@@ -13,71 +19,121 @@ export default function PassengerHome({ locationState }) {
   function handleSearch(e) {
     e.preventDefault()
     // simple route match on from/to (route strings are e.g. 'NYC-LON')
-  const routeQuery = `${from.toUpperCase()}-${to.toUpperCase()}`
-  const matched = (allFlights || []).filter((f) => f.route === routeQuery && (!date || f.date === date))
-  setResults(matched)
+    const routeQuery = `${from.toUpperCase()}-${to.toUpperCase()}`
+    const matched = (allFlights || []).filter((f) => f.route === routeQuery && (!date || f.date === date))
+    setResults(matched)
   }
 
-  return (
-    <div className="bg-white p-6 rounded shadow">
-      <h2 className="text-xl font-semibold mb-4">Passenger Dashboard</h2>
-      <form onSubmit={handleSearch} className="grid grid-cols-4 gap-4 items-end mb-4">
-        <label>
-          <div className="text-sm text-gray-600">From</div>
-          <input value={from} onChange={(e) => setFrom(e.target.value)} className="mt-1 rounded border-gray-200" placeholder="e.g. NYC" />
-        </label>
-        <label>
-          <div className="text-sm text-gray-600">To</div>
-          <input value={to} onChange={(e) => setTo(e.target.value)} className="mt-1 rounded border-gray-200" placeholder="e.g. LON" />
-        </label>
-        <label>
-          <div className="text-sm text-gray-600">Departure Date</div>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-1 rounded border-gray-200" />
-        </label>
-        <div>
-          <button type="submit" className="bg-indigo-600 text-white py-2 px-4 rounded">Search</button>
-        </div>
-      </form>
+  // Example passenger user - in real app this would come from auth context/state
+  const passengerUser = {
+    name: "Sarah Johnson",
+    role: "Passenger"
+  };
 
-      {results.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white">
-            <thead>
-              <tr>
-                <th className="text-left p-2">Flight</th>
-                <th className="text-left p-2">Departure</th>
-                <th className="text-left p-2">Arrival</th>
-                <th className="text-left p-2">Duration</th>
-                <th className="text-left p-2">Available Seats</th>
-                <th className="text-left p-2">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {results.map((f) => (
-                <tr key={f.id} className="border-t">
-                  <td className="p-2">{f.name} ({f.route})</td>
-                  <td className="p-2">{f.date} {f.departureTime}</td>
-                  <td className="p-2">{f.date} {f.arrivalTime}</td>
-                  <td className="p-2">{/* naive duration placeholder */}{calculateDuration(f.departureTime, f.arrivalTime)}</td>
-                  <td className="p-2">{f.availableSeats}</td>
-                  <td className="p-2">
-                    <button
-                      onClick={() => navigate('/passenger/book', { state: { flightId: f.id } })}
-                      className="bg-green-600 text-white py-1 px-3 rounded"
-                      disabled={f.availableSeats <= 0}
-                    >
-                      Book
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+  return (
+    <Layout title="Passenger Dashboard" showNavigation={true} user={passengerUser}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-6">
+          <Card variant="flight">
+            <CardHeader>
+              <CardTitle>Search Flights</CardTitle>
+              <CardDescription>Find and book your perfect flight</CardDescription>
+            </CardHeader>
+            <CardBody>
+              <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <LocationInput
+                  label="From"
+                  value={from}
+                  onChange={(e) => setFrom(e.target.value)}
+                  placeholder="e.g. NYC"
+                />
+                <LocationInput
+                  label="To"
+                  value={to}
+                  onChange={(e) => setTo(e.target.value)}
+                  placeholder="e.g. LON"
+                />
+                <DateInput
+                  label="Departure Date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                />
+                <div className="flex items-end">
+                  <Button type="submit" variant="primary" fullWidth>
+                    Search Flights
+                  </Button>
+                </div>
+              </form>
+            </CardBody>
+          </Card>
+
+          {results.length > 0 ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Search Results</CardTitle>
+                <CardDescription>Found {results.length} flights for your search</CardDescription>
+              </CardHeader>
+              <CardBody>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full">
+                    <thead>
+                      <tr className="border-b border-neutral-200">
+                        <th className="text-left p-4 font-medium text-neutral-700">Flight</th>
+                        <th className="text-left p-4 font-medium text-neutral-700">Departure</th>
+                        <th className="text-left p-4 font-medium text-neutral-700">Arrival</th>
+                        <th className="text-left p-4 font-medium text-neutral-700">Duration</th>
+                        <th className="text-left p-4 font-medium text-neutral-700">Available Seats</th>
+                        <th className="text-left p-4 font-medium text-neutral-700">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {results.map((f) => (
+                        <tr key={f.id} className="border-b border-neutral-100 hover:bg-neutral-50">
+                          <td className="p-4">
+                            <div className="font-medium">{f.name}</div>
+                            <div className="text-sm text-neutral-600">({f.route})</div>
+                          </td>
+                          <td className="p-4 text-neutral-600">{f.date} {f.departureTime}</td>
+                          <td className="p-4 text-neutral-600">{f.date} {f.arrivalTime}</td>
+                          <td className="p-4 text-neutral-600">{calculateDuration(f.departureTime, f.arrivalTime)}</td>
+                          <td className="p-4">
+                            <Badge variant={f.availableSeats > 10 ? "success" : f.availableSeats > 0 ? "warning" : "danger"}>
+                              {f.availableSeats} seats
+                            </Badge>
+                          </td>
+                          <td className="p-4">
+                            <Button
+                              onClick={() => navigate('/passenger/book', { state: { flightId: f.id } })}
+                              variant="bookNow"
+                              size="sm"
+                              disabled={f.availableSeats <= 0}
+                            >
+                              {f.availableSeats <= 0 ? 'Sold Out' : 'Book Now'}
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardBody>
+            </Card>
+          ) : (
+            <Card>
+              <CardBody className="text-center py-12">
+                <div className="text-neutral-500 mb-4">
+                  <svg className="w-16 h-16 mx-auto mb-4 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <p className="text-lg">No flights found</p>
+                  <p className="text-sm">Enter your departure and destination cities to search for available flights.</p>
+                </div>
+              </CardBody>
+            </Card>
+          )}
         </div>
-      ) : (
-        <div className="text-sm text-gray-500">No results. Enter a route and click Search.</div>
-      )}
-    </div>
+      </div>
+    </Layout>
   )
 }
 

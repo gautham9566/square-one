@@ -21,13 +21,14 @@ const Input = ({
   ...props 
 }) => {
   const baseClasses = 'w-full border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-0';
-  
+  const isDemo = typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/demo');
+
   const variants = {
-    default: 'border-neutral-300 focus:border-flight-primary focus:ring-flight-primary/20',
-    flight: 'border-neutral-300 focus:border-flight-primary focus:ring-flight-primary/20 bg-white',
-    admin: 'border-neutral-300 focus:border-admin-primary focus:ring-admin-primary/20',
-    error: 'border-status-refunded focus:border-status-refunded focus:ring-status-refunded/20',
-    success: 'border-status-completed focus:border-status-completed focus:ring-status-completed/20',
+    default: isDemo ? 'border-neutral-300 focus:border-flight-primary focus:ring-flight-primary/20' : 'border-neutral-300 focus:border-neutral-400 focus:ring-neutral-400/20',
+    flight: isDemo ? 'border-neutral-300 focus:border-flight-primary focus:ring-flight-primary/20 bg-white' : 'border-neutral-300 focus:border-neutral-400 focus:ring-neutral-400/20 bg-white',
+    admin: isDemo ? 'border-neutral-300 focus:border-admin-primary focus:ring-admin-primary/20' : 'border-neutral-300 focus:border-neutral-400 focus:ring-neutral-400/20',
+    error: isDemo ? 'border-status-refunded focus:border-status-refunded focus:ring-status-refunded/20' : 'border-neutral-300 focus:border-neutral-400 focus:ring-neutral-400/20',
+    success: isDemo ? 'border-status-completed focus:border-status-completed focus:ring-status-completed/20' : 'border-neutral-300 focus:border-neutral-400 focus:ring-neutral-400/20',
   };
 
   const sizes = {

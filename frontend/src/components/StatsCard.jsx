@@ -12,13 +12,21 @@ const StatsCard = ({
   color = 'blue',
   onClick 
 }) => {
-  const colorClasses = {
+  const isDemo = typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/demo');
+  const colorClasses = isDemo ? {
     blue: 'bg-blue-500',
     green: 'bg-green-500',
     yellow: 'bg-yellow-500',
     red: 'bg-red-500',
     purple: 'bg-purple-500',
     indigo: 'bg-indigo-500'
+  } : {
+    blue: 'bg-neutral-300',
+    green: 'bg-neutral-300',
+    yellow: 'bg-neutral-300',
+    red: 'bg-neutral-300',
+    purple: 'bg-neutral-300',
+    indigo: 'bg-neutral-300'
   };
 
   const trendColors = {

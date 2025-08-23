@@ -1,7 +1,9 @@
 /* Import Inter font - must come first */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Base styles */
 @layer base {
@@ -25,7 +27,9 @@
   
   /* Selection styles */
   ::selection {
-    @apply bg-blue-600 text-white;
+    /* Neutral selection outside demo */
+    background: #e6eef6;
+    color: inherit;
   }
 }
 
@@ -58,9 +62,9 @@
   
   /* Button styles */
   .btn-primary {
-    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium
-           px-6 py-2.5 rounded-lg shadow-md hover:shadow-lg
-           transition-all duration-200 transform hover:-translate-y-0.5;
+    /* Neutral primary outside demo */
+    @apply bg-neutral-200 hover:bg-neutral-300 text-neutral-900 font-medium
+           px-6 py-2.5 rounded-lg transition-all duration-200;
   }
   
   .btn-secondary {
@@ -110,12 +114,12 @@
   
   /* Seat styles */
   .seat-available {
-    @apply bg-white border-2 border-gray-300 hover:border-blue-500
-           hover:bg-blue-50 cursor-pointer transition-all duration-200;
+    @apply bg-white border-2 border-gray-300 hover:border-neutral-400
+           hover:bg-neutral-50 cursor-pointer transition-all duration-200;
   }
   
   .seat-selected {
-    @apply bg-blue-600 border-2 border-blue-600 text-white;
+    @apply bg-neutral-700 border-2 border-neutral-700 text-white;
   }
   
   .seat-unavailable {
@@ -129,7 +133,7 @@
   }
   
   .progress-dot-active {
-    @apply bg-blue-600;
+    @apply bg-neutral-700;
   }
   
   .progress-line {
@@ -137,7 +141,7 @@
   }
   
   .progress-line-active {
-    @apply bg-blue-600;
+    @apply bg-neutral-700;
   }
 }
 
@@ -152,12 +156,13 @@
   }
   
   /* Gradient backgrounds */
+  /* Neutral gradients for global styles; colorful demo gradients live in demo.css */
   .bg-sky-gradient {
-    background: linear-gradient(to bottom, #87CEEB 0%, #98D8E8 100%);
+    background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
   }
-  
+
   .bg-admin-gradient {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #f5f5fb 0%, #faf8ff 100%);
   }
   
   /* Custom scrollbar */
@@ -177,7 +182,7 @@
   /* Loading animation */
   .loading-spinner {
     border: 2px solid #f3f3f3;
-    border-top: 2px solid #3498db;
+    border-top: 2px solid #cbd5e1;
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }
