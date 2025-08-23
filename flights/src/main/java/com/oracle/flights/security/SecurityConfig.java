@@ -28,6 +28,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/actuator/health").permitAll()   // health check endpoint open to all
                 .requestMatchers("/flights/**").authenticated()    // all flight endpoints require authentication
+                .requestMatchers("/routes/**").authenticated()     // all routes endpoints require authentication
                 .anyRequest().denyAll() // everything else blocked
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

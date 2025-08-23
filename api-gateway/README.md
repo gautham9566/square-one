@@ -72,6 +72,7 @@ The gateway automatically routes requests based on the following patterns:
 | Service | Route Pattern | Target Service |
 |---------|---------------|----------------|
 | Authentication | `/api/auth/**`, `/api/tasks/**` | `backend1` |
+| Routes | `/flights/routes/**` | `flights` (mapped to `/routes/**`) |
 | Flights | `/flights/**` | `flights` |
 | Passengers | `/passengers/**` | `passengers` |
 | User Management | `/users/**` | `usermanagement` |
@@ -126,6 +127,9 @@ curl -X POST http://localhost:8090/api/auth/validate-token \
 
 ### Service Endpoints
 ```bash
+# Routes service through gateway
+curl -X GET http://localhost:8090/flights/routes
+
 # Flights service through gateway
 curl -X GET http://localhost:8090/flights
 

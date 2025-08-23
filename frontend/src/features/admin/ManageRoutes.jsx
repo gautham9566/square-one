@@ -1,22 +1,27 @@
 import { useState, useEffect } from 'react'
-import * as flightService from '../../services/flightService'
+import * as routeService from '../../services/routeService'
 
 export default function ManageRoutes() {
   const [routes, setRoutes] = useState([])
   const [adding, setAdding] = useState(false)
   const [search, setSearch] = useState('')
-  const [newRoute, setNewRoute] = useState({ departurePlace: '', arrivalPlace: '' })
+  const [newRoute, setNewRoute] = useState({ 
+    routeCode: '', 
+    departureCity: '', 
+    departureAirport: '', 
+    arrivalCity: '', 
+    arrivalAirport: '',
+    distanceKm: '',
+    estimatedDuration: ''
+  })
 
   useEffect(() => {
     let mounted = true
     async function load() {
       try {
-        const fl = await flightService.list()
+        const routeData = await routeService.list()
         if (!mounted) return
-        setRoutes((fl || []).map(f => {
-          const parts = (f.route || '').split('-')
-          return { id: f.id, departurePlace: parts[0] || '', arrivalPlace: parts[1] || '' }
-        }))
+        setRoutes(routeData || [])
       } catch (err) { 
         console.error('Failed to load routes', err) 
       }
@@ -29,17 +34,55 @@ export default function ManageRoutes() {
     setRoutes(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r))
   }
 
-  function addRoute() {
-    const id = Math.max(0, ...routes.map(r => r.id)) + 1
-    setRoutes(prev => [...prev, { id, ...newRoute }])
-    setNewRoute({ departurePlace: '', arrivalPlace: '' })
-    setAdding(false)
+  async function addRoute() {
+    try {
+      const routeData = {
+        routeCode: `${newRoute.departureAirport}-${newRoute.arrivalAirport}`,
+        departureCity: newRoute.departureCity,
+        departureAirport: newRoute.departureAirport,
+        arrivalCity: newRoute.arrivalCity,
+        arrivalAirport: newRoute.arrivalAirport,
+        distanceKm: newRoute.distanceKm ? parseInt(newRoute.distanceKm) : null,
+        estimatedDuration: newRoute.estimatedDuration ? parseInt(newRoute.estimatedDuration) : null,
+        status: 'ACTIVE'
+      }
+      
+      const createdRoute = await routeService.create(routeData)
+      setRoutes(prev => [...prev, createdRoute])
+      setNewRoute({ 
+        routeCode: '', 
+        departureCity: '', 
+        departureAirport: '', 
+        arrivalCity: '', 
+        arrivalAirport: '',
+        distanceKm: '',
+        estimatedDuration: ''
+      })
+      setAdding(false)
+    } catch (err) {
+      console.error('Failed to create route', err)
+      alert('Failed to create route: ' + err.message)
+    }
+  }
+
+  async function deleteRoute(id) {
+    try {
+      await routeService.remove(id)
+      setRoutes(prev => prev.filter(r => r.id !== id))
+    } catch (err) {
+      console.error('Failed to delete route', err)
+      alert('Failed to delete route: ' + err.message)
+    }
   }
 
   const displayed = routes.filter(r => {
     if (!search) return true
     const q = search.toLowerCase()
-    return (r.departurePlace?.toLowerCase().includes(q) || r.arrivalPlace?.toLowerCase().includes(q))
+    return (r.departureCity?.toLowerCase().includes(q) || 
+            r.arrivalCity?.toLowerCase().includes(q) ||
+            r.departureAirport?.toLowerCase().includes(q) ||
+            r.arrivalAirport?.toLowerCase().includes(q) ||
+            r.routeCode?.toLowerCase().includes(q))
   })
 
   return (
@@ -78,23 +121,51 @@ export default function ManageRoutes() {
         {adding && (
           <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Route</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 mb-4">
               <input
                 type="text"
-                placeholder="Departure place"
-                value={newRoute.departurePlace}
-                onChange={e => setNewRoute(prev => ({ ...prev, departurePlace: e.target.value }))}
+                placeholder="Departure City (e.g., New York)"
+                value={newRoute.departureCity}
+                onChange={e => setNewRoute(prev => ({ ...prev, departureCity: e.target.value }))}
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <input
                 type="text"
-                placeholder="Arrival place"
-                value={newRoute.arrivalPlace}
-                onChange={e => setNewRoute(prev => ({ ...prev, arrivalPlace: e.target.value }))}
+                placeholder="Departure Airport (e.g., JFK)"
+                value={newRoute.departureAirport}
+                onChange={e => setNewRoute(prev => ({ ...prev, departureAirport: e.target.value }))}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="Arrival City (e.g., London)"
+                value={newRoute.arrivalCity}
+                onChange={e => setNewRoute(prev => ({ ...prev, arrivalCity: e.target.value }))}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="Arrival Airport (e.g., LHR)"
+                value={newRoute.arrivalAirport}
+                onChange={e => setNewRoute(prev => ({ ...prev, arrivalAirport: e.target.value }))}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="number"
+                placeholder="Distance (km)"
+                value={newRoute.distanceKm}
+                onChange={e => setNewRoute(prev => ({ ...prev, distanceKm: e.target.value }))}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="number"
+                placeholder="Duration (minutes)"
+                value={newRoute.estimatedDuration}
+                onChange={e => setNewRoute(prev => ({ ...prev, estimatedDuration: e.target.value }))}
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div className="flex gap-3 justify-end mt-4">
+            <div className="flex gap-3 justify-end">
               <button 
                 onClick={() => setAdding(false)}
                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
@@ -134,10 +205,25 @@ export default function ManageRoutes() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Route Code
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Departure
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Arrival
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Distance (km)
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Duration (min)
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
                     </th>
                   </tr>
                 </thead>
@@ -145,20 +231,38 @@ export default function ManageRoutes() {
                   {displayed.map(r => (
                     <tr key={r.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <input
-                          type="text"
-                          value={r.departurePlace}
-                          onChange={e => updateRouteField(r.id, 'departurePlace', e.target.value)}
-                          className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        />
+                        <div className="text-sm font-medium text-gray-900">{r.routeCode}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <input
-                          type="text"
-                          value={r.arrivalPlace}
-                          onChange={e => updateRouteField(r.id, 'arrivalPlace', e.target.value)}
-                          className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        />
+                        <div className="text-sm text-gray-900">{r.departureCity}</div>
+                        <div className="text-sm text-gray-500">{r.departureAirport}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{r.arrivalCity}</div>
+                        <div className="text-sm text-gray-500">{r.arrivalAirport}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {r.distanceKm || '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {r.estimatedDuration || '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          r.status === 'ACTIVE' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {r.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button
+                          onClick={() => deleteRoute(r.id)}
+                          className="text-red-600 hover:text-red-900 ml-2"
+                        >
+                          Delete
+                        </button>
                       </td>
                     </tr>
                   ))}

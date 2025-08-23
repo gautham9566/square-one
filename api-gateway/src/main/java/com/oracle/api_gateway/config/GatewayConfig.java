@@ -20,6 +20,18 @@ public class GatewayConfig {
                         .path("/api/auth/**", "/api/tasks/**")
                         .uri("lb://backend1"))
                 
+                // Routes Service Routes - base path (must come before /flights/**)
+                .route("routes-service-base", r -> r
+                        .path("/flights/routes")
+                        .filters(f -> f.rewritePath("/flights/routes", "/routes"))
+                        .uri("lb://flights"))
+
+                // Routes Service Routes (part of flights service)
+                .route("routes-service", r -> r
+                        .path("/flights/routes/**")
+                        .filters(f -> f.rewritePath("/flights/routes/(?<segment>.*)", "/routes/${segment}"))
+                        .uri("lb://flights"))
+
                 // Flights Service Routes
                 .route("flights-service", r -> r
                         .path("/flights/**")
