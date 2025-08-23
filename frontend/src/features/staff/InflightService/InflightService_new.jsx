@@ -32,8 +32,6 @@ export default function InflightService() {
   const [selectedFlightId, setSelectedFlightId] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [saving, setSaving] = useState(false)
-  const [saveSuccess, setSaveSuccess] = useState(false)
 
   // Try to get flightId from state first, fallback to selected
   const flightId = state?.flightId || selectedFlightId
@@ -167,40 +165,6 @@ export default function InflightService() {
     )
   }
 
-  const handleSaveChanges = async () => {
-    setSaving(true)
-    setSaveSuccess(false)
-    setError(null)
-    
-    try {
-      // Update all modified passengers
-      const updatePromises = filteredPassengers.map(async (passenger) => {
-        try {
-          await passengerService.update(passenger.id, {
-            ...passenger,
-            mealName: passenger.specialMeal,
-            shoppingItems: passenger.shoppingRequests,
-            services: passenger.ancillaryServices
-          })
-        } catch (err) {
-          console.error(`Failed to update passenger ${passenger.name}:`, err)
-          throw new Error(`Failed to update ${passenger.name}: ${err.message}`)
-        }
-      })
-      
-      await Promise.all(updatePromises)
-      setSaveSuccess(true)
-      
-      // Clear success message after 3 seconds
-      setTimeout(() => setSaveSuccess(false), 3000)
-    } catch (err) {
-      console.error('Failed to save changes:', err)
-      setError(`Failed to save changes: ${err.message}`)
-    } finally {
-      setSaving(false)
-    }
-  }
-
   const searchResults = filteredPassengers.filter((passenger) =>
     (passenger.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
     (passenger.seat || '').toLowerCase().includes(searchQuery.toLowerCase())
@@ -298,43 +262,8 @@ export default function InflightService() {
               <div className="lg:col-span-3">
                 <Card>
                   <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle>Passenger Management</CardTitle>
-                        <CardDescription>Search and manage passenger services</CardDescription>
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <Button 
-                          onClick={handleSaveChanges}
-                          disabled={saving}
-                          className="flex items-center gap-2"
-                        >
-                          {saving ? (
-                            <>
-                              <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                              </svg>
-                              Saving...
-                            </>
-                          ) : (
-                            <>
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
-                              </svg>
-                              Save Changes
-                            </>
-                          )}
-                        </Button>
-                        {saveSuccess && (
-                          <div className="text-green-600 text-sm flex items-center gap-1">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                            Changes saved successfully!
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    <CardTitle>Passenger Management</CardTitle>
+                    <CardDescription>Search and manage passenger services</CardDescription>
                   </CardHeader>
                   <CardBody>
                     <div className="mb-6">
