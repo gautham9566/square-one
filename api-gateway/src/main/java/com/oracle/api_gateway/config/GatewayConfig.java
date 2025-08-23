@@ -46,6 +46,12 @@ public class GatewayConfig {
                 .route("users-service", r -> r
                         .path("/users/**")
                         .uri("lb://usermanagement"))
+
+                // User Management Service Health Check Route
+                .route("usermanagement-health", r -> r
+                        .path("/usermanagement/**")
+                        .filters(f -> f.rewritePath("/usermanagement/(?<segment>.*)", "/${segment}"))
+                        .uri("lb://usermanagement"))
                 
                 // Service Management Routes
                 .route("services-management", r -> r

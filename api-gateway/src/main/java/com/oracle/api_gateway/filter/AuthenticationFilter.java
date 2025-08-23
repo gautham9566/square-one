@@ -34,7 +34,11 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         "/history/info",
         "/history/health",
         "/services/info",
-        "/services/health"
+        "/services/health",
+        "/usermanagement/actuator/health",
+        "/backend1/actuator/health",
+        "/flights/actuator/health",
+        "/passengers/actuator/health"
     );
 
     @Override
