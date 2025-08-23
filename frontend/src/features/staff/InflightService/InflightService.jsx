@@ -17,14 +17,53 @@ export default function InflightService() {
   const [selectedPassengerId, setSelectedPassengerId] = useState(null)
   const [selectedSubService, setSelectedSubService] = useState({})
   const [flight, setFlight] = useState(null)
+  const [availableFlights, setAvailableFlights] = useState([])
+  const [selectedFlightId, setSelectedFlightId] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
-  const flightId = state?.flightId || null
+  // Try to get flightId from state first, fallback to selected
+  const flightId = state?.flightId || selectedFlightId
+
+  // Load available flights if no flightId is provided
+  useEffect(() => {
+    let mounted = true
+    async function loadFlights() {
+      if (flightId) return // Already have a flight selected
+      setLoading(true)
+      setError(null)
+      try {
+        const flights = await flightService.list()
+        if (!mounted) return
+        setAvailableFlights(flights)
+        // For demo purposes: auto-select flight 1 for inflight staff
+        // In production, this should come from the user's profile
+        if (flights.length > 0 && !selectedFlightId) {
+          const defaultFlightId = flights.find(f => f.id === 1)?.id || flights[0].id
+          setSelectedFlightId(defaultFlightId)
+        }
+      } catch (err) {
+        console.error('Failed to load flights', err)
+        if (mounted) {
+          setError(`Failed to load flights: ${err.message}`)
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false)
+        }
+      }
+    }
+    loadFlights()
+    return () => { mounted = false }
+  }, [flightId, selectedFlightId])
 
   // normalize passenger fields for this view
   useEffect(() => {
     let mounted = true
     async function load() {
       if (!flightId) return
+      setLoading(true)
+      setError(null)
       try {
         const [plist, f] = await Promise.all([
           passengerService.listByFlight(Number(flightId)),
@@ -43,6 +82,13 @@ export default function InflightService() {
         setFlight(f)
       } catch (err) {
         console.error('Failed to load inflight data', err)
+        if (mounted) {
+          setError(`Failed to load flight data: ${err.message}`)
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false)
+        }
       }
     }
     load()
@@ -114,6 +160,63 @@ export default function InflightService() {
             ← Back
           </Button>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <Card className="mb-6">
+            <CardBody>
+              <div className="text-red-600 flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {error}
+              </div>
+            </CardBody>
+          </Card>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <Card className="mb-6">
+            <CardBody>
+              <div className="flex items-center gap-2 text-neutral-600">
+                <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Loading flight data...
+              </div>
+            </CardBody>
+          </Card>
+        )}
+
+        {/* Flight Selection - show when no flightId in state */}
+        {!state?.flightId && availableFlights.length > 0 && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Select Flight</CardTitle>
+              <CardDescription>Choose a flight to manage inflight services</CardDescription>
+            </CardHeader>
+            <CardBody>
+              <div className="flex gap-4 items-center">
+                <label htmlFor="flight-select" className="font-medium text-neutral-700">Flight:</label>
+                <select
+                  id="flight-select"
+                  value={selectedFlightId || ''}
+                  onChange={(e) => setSelectedFlightId(Number(e.target.value))}
+                  className="border border-neutral-300 rounded px-3 py-2 min-w-[200px]"
+                >
+                  <option value="">Select a flight</option>
+                  {availableFlights.map((f) => (
+                    <option key={f.id} value={f.id}>
+                      {f.name} - {f.route} ({f.date})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </CardBody>
+          </Card>
+        )}
+
         <div className="space-y-6">
           {flight && (
             <Card>
