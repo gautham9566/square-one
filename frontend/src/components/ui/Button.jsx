@@ -17,7 +17,9 @@ const Button = ({
 
   const variants = {
     // Flight booking theme
-    primary: isDemo ? 'bg-flight-primary hover:bg-flight-dark text-white focus:ring-flight-primary shadow-md hover:shadow-lg transform hover:-translate-y-0.5' : 'bg-neutral-200 hover:bg-neutral-300 text-neutral-900 focus:ring-neutral-400',
+    primary: isDemo
+      ? 'bg-flight-primary hover:bg-flight-dark text-white focus:ring-flight-primary shadow-md hover:shadow-lg transform hover:-translate-y-0.5'
+      : 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500 shadow-sm',
     secondary: isDemo ? 'bg-neutral-200 hover:bg-neutral-300 text-neutral-900 focus:ring-neutral-400' : 'bg-neutral-200 hover:bg-neutral-300 text-neutral-900 focus:ring-neutral-400',
     
     // Admin theme
