@@ -197,6 +197,32 @@ public class TravelHistoryController {
     }
 
     /**
+     * Get all travel history records (for admin dashboard)
+     * @return all travel history records
+     */
+    @GetMapping
+    public ResponseEntity<TravelHistoryResponseDto> getAllTravelHistory() {
+        logger.info("REST request to get all travel history records");
+
+        try {
+            TravelHistoryResponseDto response = travelHistoryService.getAllTravelHistory();
+
+            if (response.isSuccess()) {
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+        } catch (Exception e) {
+            logger.error("Error fetching all travel history", e);
+            TravelHistoryResponseDto errorResponse = TravelHistoryResponseDto.error(
+                "Error retrieving travel history: " + e.getMessage()
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    /**
      * Get API information
      * @return API information
      */
@@ -207,6 +233,7 @@ public class TravelHistoryController {
             public final String version = "1.0.0";
             public final String description = "Manage passenger travel records and booking history";
             public final String[] endpoints = {
+                "GET /history - Get all travel history records (admin)",
                 "GET /history/passenger/{passengerId} - Get passenger travel history",
                 "GET /history/booking/{reference} - Get booking by reference",
                 "GET /history/flight/{flightId} - Get history for specific flight",

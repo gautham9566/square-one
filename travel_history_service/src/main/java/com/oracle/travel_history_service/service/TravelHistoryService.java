@@ -222,8 +222,53 @@ public class TravelHistoryService {
             return response;
 
         } catch (Exception e) {
-            logger.error("Error fetching travel history for passenger ID: {} with status: {}", 
+            logger.error("Error fetching travel history for passenger ID: {} with status: {}",
                     passengerId, status, e);
+            return TravelHistoryResponseDto.error("Error retrieving travel history: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get all travel history records (for admin dashboard)
+     * @return travel history response with all records
+     */
+    public TravelHistoryResponseDto getAllTravelHistory() {
+        logger.info("Fetching all travel history records");
+
+        try {
+            List<TravelHistory> travelHistoryList = travelHistoryRepository.findAll();
+            logger.info("Retrieved {} travel history records from database", travelHistoryList.size());
+
+            if (travelHistoryList.isEmpty()) {
+                logger.info("No travel history records found");
+                return TravelHistoryResponseDto.success("No travel history records found",
+                        List.of(), "all", null);
+            }
+
+            // Sort by travel date descending, handling null values
+            travelHistoryList.sort((a, b) -> {
+                if (a.getTravelDate() == null && b.getTravelDate() == null) return 0;
+                if (a.getTravelDate() == null) return 1;
+                if (b.getTravelDate() == null) return -1;
+                return b.getTravelDate().compareTo(a.getTravelDate());
+            });
+
+            logger.info("Converting {} records to DTOs", travelHistoryList.size());
+            List<TravelHistoryDto> travelHistoryDtos = travelHistoryList.stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
+
+            logger.info("Successfully converted {} travel history records to DTOs", travelHistoryDtos.size());
+
+            return TravelHistoryResponseDto.success(
+                    "All travel history retrieved successfully",
+                    travelHistoryDtos,
+                    "all",
+                    null
+            );
+
+        } catch (Exception e) {
+            logger.error("Error fetching all travel history", e);
             return TravelHistoryResponseDto.error("Error retrieving travel history: " + e.getMessage());
         }
     }

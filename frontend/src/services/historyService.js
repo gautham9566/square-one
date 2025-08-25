@@ -19,7 +19,28 @@ async function request(path, options = {}) {
 // CRUD for travel history
 export async function list() {
   const data = await request('/history', { method: 'GET' })
-  return Array.isArray(data) ? data : []
+
+  // Handle the backend response format
+  if (data && data.success && Array.isArray(data.travelHistory)) {
+    // Transform the data to match frontend expectations
+    return data.travelHistory.map(record => ({
+      id: record.historyId,
+      date: record.travelDate,
+      passengerId: record.passengerId,
+      flightId: record.flightId,
+      origin: record.origin,
+      destination: record.destination,
+      seat: record.seat,
+      bookingReference: record.bookingReference,
+      fareClass: record.fareClass,
+      status: record.status,
+      distanceKm: record.distanceKm,
+      durationMin: record.durationMin,
+      notes: record.notes
+    }))
+  }
+
+  return []
 }
 
 export async function findById(id) {
