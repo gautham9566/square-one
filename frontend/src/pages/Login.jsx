@@ -63,83 +63,95 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-50">
-      <div className="w-full max-w-md p-6">
+    <div className="min-h-screen flex items-center justify-center overflow-hidden relative">
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute top-0 left-0 w-full h-full object-cover z-0"
+      >
+        <source
+          src="https://videos.pexels.com/video-files/3736778/3736778-uhd_2560_1440_24fps.mp4"
+          type="video/mp4"
+        />
+        Your browser does not support the video tag.
+      </video>
+      <div className="absolute inset-0 bg-white opacity-40"></div>
+      <div className="w-full max-w-md p-6 relative z-10">
         {/* Logo and Header */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-2xl">✈</span>
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-white">Welcome Back</h1>
+            <p className="text-gray-200 mt-2">Sign in to your airline management account</p>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
-          <p className="text-gray-600 mt-2">Sign in to your airline management account</p>
-        </div>
 
-        <Card className="shadow-xl border-0">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <div className="flex">
-                  <div className="ml-3">
-                    <p className="text-sm text-red-800">{error}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            <Input
-              label="Username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
-              required
-              disabled={loading}
-            />
-            
-            <Input
-              label="Password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
-              disabled={loading}
-            />
-
-            <Button 
-              type="submit" 
-              variant="primary" 
-              size="lg" 
-              className="w-full"
-              loading={loading}
-              disabled={loading}
-            >
-              {loading ? 'Signing in...' : 'Sign in'}
-            </Button>
-          </form>
-
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Quick access for testing</span>
+          <Card className="shadow-xl border-0 bg-black/20 backdrop-blur-lg">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex">
+              <div className="ml-3">
+                <p className="text-sm text-red-800">{error}</p>
               </div>
             </div>
+                </div>
+              )}
+              
+              <Input
+                label="Username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter your username"
+                required
+                disabled={loading}
+                labelClassName="text-white"
+              />
+              
+              <Input
+                label="Password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                required
+                disabled={loading}
+                labelClassName="text-white"
+              />
 
-            <div className="mt-4 grid grid-cols-3 gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
+              <Button 
+                type="submit" 
+                variant="primary" 
+                size="lg" 
+                className="w-full"
+                loading={loading}
+                disabled={loading}
+              >
+                {loading ? 'Signing in...' : 'Sign in'}
+              </Button>
+            </form>
+
+            <div className="mt-6">
+              <div className="relative">
+                <div className="relative flex justify-center text-sm">
+                 <span className="px-2 bg-transparent text-white">Quick access for testing</span>
+                </div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-3 gap-2 ">
+                <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
                   setUsername('admin1');
                   setPassword('adminpass');
                 }}
                 disabled={loading}
+                className="text-white"
               >
                 Admin
               </Button>
+
               <Button
                 variant="outline"
                 size="sm"
@@ -148,6 +160,7 @@ export default function Login() {
                   setPassword('checkinpass');
                 }}
                 disabled={loading}
+                className="text-white"
               >
                 CheckinStaff
               </Button>
@@ -159,6 +172,7 @@ export default function Login() {
                   setPassword('inflightpass');
                 }}
                 disabled={loading}
+                className="text-white"
               > inflightStaff
               </Button>
               <Button
@@ -169,6 +183,7 @@ export default function Login() {
                   setPassword('passpass');
                 }}
                 disabled={loading}
+                className="text-white"
               >
                 Passenger
               </Button>
