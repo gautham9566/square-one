@@ -4,6 +4,7 @@ import authService from '../services/authService'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
+import flightVideo from './mp4/flight.mp4';
 
 export default function Login() {
   const [username, setUsername] = useState('')
@@ -72,7 +73,7 @@ export default function Login() {
         className="absolute top-0 left-0 w-full h-full object-cover z-0"
       >
         <source
-          src="https://videos.pexels.com/video-files/3736778/3736778-uhd_2560_1440_24fps.mp4"
+          src={flightVideo}
           type="video/mp4"
         />
         Your browser does not support the video tag.

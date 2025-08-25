@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 // Demo-only styles. This file contains the design system used only on /demo.
 import '../styles/demo.css';
 import Button from '../components/ui/Button';
 import Input, { SearchInput, DateInput, LocationInput } from '../components/ui/Input';
 import Card, { CardHeader, CardTitle, CardDescription, CardBody, CardFooter, FlightCard, TripCard } from '../components/ui/Card';
 import Badge, { StatusBadge, FlightStatusBadge, CountBadge } from '../components/ui/Badge';
-import SeatMap from '../components/SeatMap';
-import FlightSearchResults from '../components/FlightSearchResults';
+
+// Lazy load heavy components
+const SeatMap = lazy(() => import('../components/SeatMap'));
+const FlightSearchResults = lazy(() => import('../components/FlightSearchResults'));
 
 const DemoPage = () => {
   const [activeSection, setActiveSection] = useState('overview');
@@ -430,22 +432,26 @@ const DemoPage = () => {
         {/* Flight Search Section */}
         {activeSection === 'flight-search' && (
           <div className="-mx-4 sm:-mx-6 lg:-mx-8">
-            <FlightSearchResults />
+            <Suspense fallback={<div className="flex justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>}>
+              <FlightSearchResults />
+            </Suspense>
           </div>
         )}
 
         {/* Seat Map Section */}
         {activeSection === 'seat-map' && (
-          <SeatMap
-            rows={10}
-            seatsPerRow={6}
-            unavailableSeats={['28B', '29A', '29C', '30D', '31E', '32F', '33A', '33B']}
-            selectedSeats={['28C', '28F']}
-            onSeatSelect={(seatId, selectedSeats) => {
-              console.log('Seat selected:', seatId);
-              console.log('All selected seats:', selectedSeats);
-            }}
-          />
+          <Suspense fallback={<div className="flex justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>}>
+            <SeatMap
+              rows={10}
+              seatsPerRow={6}
+              unavailableSeats={['28', '29', '30', '31', '32', '33', '34', '35']}
+              selectedSeats={['26', '27']}
+              onSeatSelect={(seatId, selectedSeats) => {
+                console.log('Seat selected:', seatId);
+                console.log('All selected seats:', selectedSeats);
+              }}
+            />
+          </Suspense>
         )}
       </div>
     </div>

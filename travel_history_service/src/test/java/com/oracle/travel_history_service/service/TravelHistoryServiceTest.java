@@ -74,7 +74,7 @@ class TravelHistoryServiceTest {
         samplePassenger.setPhoneNumber("123-456-7890");
         samplePassenger.setOrigin("NYC");
         samplePassenger.setDestination("LON");
-        samplePassenger.setSeat("12A");
+        samplePassenger.setSeat("1");
         samplePassenger.setCheckedIn("Y");
 
         // Sample Flight

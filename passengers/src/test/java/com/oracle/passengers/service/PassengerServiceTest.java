@@ -53,13 +53,13 @@ class PassengerServiceTest {
         testPassenger.setServices(List.of("Meal"));
         testPassenger.setMealType("Veg");
         testPassenger.setMealName("Pasta");
-        testPassenger.setSeat("12A");
+        testPassenger.setSeat("1");
         testPassenger.setCheckedIn(false);
         testPassenger.setWheelchair(false);
         testPassenger.setInfant(false);
         testPassenger.setCreatedAt(LocalDateTime.now());
         testPassenger.setUpdatedAt(LocalDateTime.now());
-        
+
         testCreateDto = new PassengerCreateDto(1L, "John Doe", "NYC", "LON");
         testCreateDto.setPhoneNumber("123-456-7890");
         testCreateDto.setAddress("123 Main St");
@@ -68,15 +68,15 @@ class PassengerServiceTest {
         testCreateDto.setServices(List.of("Meal"));
         testCreateDto.setMealType("Veg");
         testCreateDto.setMealName("Pasta");
-        testCreateDto.setSeat("12A");
-        
+        testCreateDto.setSeat("1");
+
         testUpdateDto = new PassengerUpdateDto();
         testUpdateDto.setName("John Smith");
         testUpdateDto.setPhoneNumber("987-654-3210");
-        
-        testCheckInDto = new CheckInDto("12A", false, false, null);
-        
-        testSeatAssignmentDto = new SeatAssignmentDto(1L, "12B");
+
+        testCheckInDto = new CheckInDto("1", false, false, null);
+
+        testSeatAssignmentDto = new SeatAssignmentDto(1L, "2");
     }
     
     @Test

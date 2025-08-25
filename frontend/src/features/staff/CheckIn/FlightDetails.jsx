@@ -125,10 +125,10 @@ export default function FlightDetails() {
       const booked = new Set()
       updatedPassengers.forEach((p) => {
         if (p.seat && p.checkedIn) {
-          // Extract row number from seat ID (e.g., "12A" -> 12)
-          const rowMatch = p.seat.match(/^(\d+)/);
-          if (rowMatch) {
-            booked.add(parseInt(rowMatch[1], 10))
+          // Parse numeric seat ID directly
+          const seatNumber = parseInt(p.seat, 10);
+          if (!isNaN(seatNumber)) {
+            booked.add(seatNumber)
           }
         }
       })
@@ -462,22 +462,14 @@ export default function FlightDetails() {
                               >
                                 <option value="">Select Seat</option>
                                 {Array.from({ length: flight?.totalSeats || 60 }, (_, i) => {
-                                  const seatNumber = i + 1
-                                  const row = Math.ceil(seatNumber / 6)
-                                  const seatLetter = String.fromCharCode(65 + ((seatNumber - 1) % 6))
-                                  const seatId = `${row}${seatLetter}`
+                                  const seatId = (i + 1).toString()
                                   const isOccupied = passengerList.some(p => p.seat === seatId && p.id !== passenger.id && p.checkedIn)
 
                                   return (
                                     <option key={seatId} value={seatId} disabled={isOccupied}>
-                                      {seatId} {isOccupied ? '(Occupied)' : ''}
+                                      Seat {seatId} {isOccupied ? '(Occupied)' : ''}
                                     </option>
                                   )
-                                }).filter((_, i) => {
-                                  // Filter to show only valid seat combinations
-                                  const seatNumber = i + 1
-                                  const row = Math.ceil(seatNumber / 6)
-                                  return row <= Math.ceil((flight?.totalSeats || 60) / 6)
                                 })}
                               </select>
                               {isSelected && (

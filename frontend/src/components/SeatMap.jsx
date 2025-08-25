@@ -16,24 +16,26 @@ const SeatMap = ({
     setLocalSelectedSeats(selectedSeats);
   }, [selectedSeats]);
   
-  // Generate seat labels (A, B, C, etc.)
-  const getSeatLabel = (index) => String.fromCharCode(65 + index);
-  
+  // Generate sequential seat numbers (1, 2, 3, etc.)
+  const getSeatNumber = (row, seatIndex) => {
+    return ((row - 1) * seatsPerRow) + seatIndex + 1;
+  };
+
   // Check seat status
   const getSeatStatus = (row, seatIndex) => {
-    const seatId = `${row}${getSeatLabel(seatIndex)}`;
+    const seatId = getSeatNumber(row, seatIndex).toString();
     if (unavailableSeats.includes(seatId)) return 'unavailable';
     if (localSelectedSeats.includes(seatId)) return 'selected';
     return 'available';
   };
-  
+
   // Handle seat click
   const handleSeatClick = (row, seatIndex) => {
-    const seatId = `${row}${getSeatLabel(seatIndex)}`;
+    const seatId = getSeatNumber(row, seatIndex).toString();
     const status = getSeatStatus(row, seatIndex);
-    
+
     if (status === 'unavailable') return;
-    
+
     let newSelectedSeats;
     if (status === 'selected') {
       // For check-in process, allow deselection
@@ -42,7 +44,7 @@ const SeatMap = ({
       // For check-in process, replace selection with new seat (single selection)
       newSelectedSeats = [seatId];
     }
-    
+
     setLocalSelectedSeats(newSelectedSeats);
     if (onSeatSelect) {
       onSeatSelect(seatId, newSelectedSeats);
@@ -51,10 +53,10 @@ const SeatMap = ({
   
   // Seat component
   const Seat = ({ row, seatIndex, status }) => {
-    const seatLabel = getSeatLabel(seatIndex);
-    
+    const seatNumber = getSeatNumber(row, seatIndex);
+
     const baseClasses = 'w-12 h-12 rounded-lg flex items-center justify-center text-sm font-medium transition-all duration-200';
-    
+
     const isDemo = typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/demo');
     const statusClasses = isDemo ? {
       available: 'bg-green-50 border-2 border-green-300 hover:border-green-500 hover:bg-green-100 cursor-pointer text-green-700 shadow-sm',
@@ -65,15 +67,15 @@ const SeatMap = ({
       selected: 'bg-blue-600 border-2 border-blue-600 text-white cursor-pointer shadow-md transform scale-105',
       unavailable: 'bg-red-100 border-2 border-red-300 text-red-500 cursor-not-allowed',
     };
-    
+
     return (
       <button
         className={`${baseClasses} ${statusClasses[status]}`}
         onClick={() => handleSeatClick(row, seatIndex)}
         disabled={status === 'unavailable'}
-        aria-label={`Seat ${row}${seatLabel} - ${status}`}
+        aria-label={`Seat ${seatNumber} - ${status}`}
       >
-        {status === 'unavailable' ? '✕' : status === 'selected' ? '✓' : seatLabel}
+        {status === 'unavailable' ? '✕' : status === 'selected' ? '✓' : seatNumber}
       </button>
     );
   };

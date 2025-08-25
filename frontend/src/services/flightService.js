@@ -43,6 +43,11 @@ export async function remove(id) {
   return request(`/flights/${id}`, { method: 'DELETE' })
 }
 
+export async function getSeatAvailability(flightId) {
+  const data = await request(`/flights/${flightId}/seats`, { method: 'GET' })
+  return data
+}
+
 function normalizeFlight(raw) {
   if (!raw) return raw
 

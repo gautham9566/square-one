@@ -246,62 +246,62 @@ INSERT INTO flights (
 -- Insert Passengers
 INSERT INTO passengers (
     flight_id, name, phone_number, address, passport_number, date_of_birth,
-    origin, destination, services, meal_type, meal_name, extra_baggage, 
+    origin, destination, services, meal_type, meal_name, extra_baggage,
     shopping_items, seat, checked_in, wheelchair, infant
 ) VALUES (
     1, 'Alice Johnson', '123-456-7890', '123 Main St, New York, NY', 'A1234567', DATE '1990-04-15',
     'NYC', 'LON', '["Meal", "Ancillary"]', 'Veg', 'Biryani', 10,
-    '[]', '12A', 'Y', 'N', 'N'
+    '[]', '1', 'Y', 'N', 'N'
 );
 
 INSERT INTO passengers (
     flight_id, name, phone_number, address, passport_number, date_of_birth,
-    origin, destination, services, meal_type, meal_name, extra_baggage, 
+    origin, destination, services, meal_type, meal_name, extra_baggage,
     shopping_items, seat, checked_in, wheelchair, infant
 ) VALUES (
     1, 'Bob Smith', '987-654-3210', '456 Elm St, Los Angeles, CA', NULL, NULL,
     'NYC', 'LON', '["Shopping"]', NULL, NULL, 0,
-    '["Magazine", "Perfume"]', '14B', 'Y', 'Y', 'N'
+    '["Magazine", "Perfume"]', '2', 'Y', 'Y', 'N'
 );
 
 INSERT INTO passengers (
     flight_id, name, phone_number, address, passport_number, date_of_birth,
-    origin, destination, services, meal_type, meal_name, extra_baggage, 
+    origin, destination, services, meal_type, meal_name, extra_baggage,
     shopping_items, seat, checked_in, wheelchair, infant
 ) VALUES (
     1, 'Charlie Brown', '555-555-5555', '789 Oak St, Chicago, IL', 'B7654321', DATE '1985-11-05',
     'NYC', 'LON', '["Meal", "Shopping"]', 'Non-Veg', 'Burger', 0,
-    '["Chocolates"]', '15C', 'Y', 'N', 'Y'
+    '["Chocolates"]', '3', 'Y', 'N', 'Y'
 );
 
 INSERT INTO passengers (
     flight_id, name, phone_number, address, passport_number, date_of_birth,
-    origin, destination, services, meal_type, meal_name, extra_baggage, 
+    origin, destination, services, meal_type, meal_name, extra_baggage,
     shopping_items, seat, checked_in, wheelchair, infant
 ) VALUES (
     2, 'Diana Prince', '111-222-3333', '321 Maple St, Paris, FR', 'P9998887', DATE '1992-07-20',
     'PAR', 'TOK', '["Meal"]', 'Veg', 'Salad', 0,
-    '[]', '10A', 'Y', 'N', 'N'
+    '[]', '1', 'Y', 'N', 'N'
 );
 
 INSERT INTO passengers (
     flight_id, name, phone_number, address, passport_number, date_of_birth,
-    origin, destination, services, meal_type, meal_name, extra_baggage, 
+    origin, destination, services, meal_type, meal_name, extra_baggage,
     shopping_items, seat, checked_in, wheelchair, infant
 ) VALUES (
     2, 'Ethan Hunt', '444-555-6666', '654 Pine St, Tokyo, JP', 'E5554443', DATE '1978-03-12',
     'PAR', 'TOK', '["Shopping"]', NULL, NULL, 0,
-    '["Watch"]', '11B', 'Y', 'N', 'N'
+    '["Watch"]', '2', 'Y', 'N', 'N'
 );
 
 INSERT INTO passengers (
     flight_id, name, phone_number, address, passport_number, date_of_birth,
-    origin, destination, services, meal_type, meal_name, extra_baggage, 
+    origin, destination, services, meal_type, meal_name, extra_baggage,
     shopping_items, seat, checked_in, wheelchair, infant
 ) VALUES (
     3, 'Fiona Glenanne', '777-888-9999', '987 Birch St, Sydney, AU', NULL, NULL,
     'LAX', 'SYD', '["Ancillary"]', NULL, NULL, 15,
-    '[]', '5C', 'Y', 'Y', 'Y'
+    '[]', '5', 'Y', 'Y', 'Y'
 );
 
 -- Insert Travel History
@@ -309,7 +309,7 @@ INSERT INTO travel_history (
     passenger_id, flight_id, travel_date, origin, destination, seat,
     booking_reference, fare_class, status, distance_km, duration_min, notes
 ) VALUES (
-    1, 1, DATE '2024-12-15', 'NYC', 'LON', '12A',
+    1, 1, DATE '2024-12-15', 'NYC', 'LON', '1',
     'ABC123', 'Economy', 'Completed', 5567, 420, 'On-time arrival'
 );
 
@@ -317,7 +317,7 @@ INSERT INTO travel_history (
     passenger_id, flight_id, travel_date, origin, destination, seat,
     booking_reference, fare_class, status, distance_km, duration_min, notes
 ) VALUES (
-    2, 1, DATE '2025-01-10', 'NYC', 'LON', '14B',
+    2, 1, DATE '2025-01-10', 'NYC', 'LON', '2',
     'DEF456', 'Economy', 'Completed', 5567, 430, 'Delayed due to weather'
 );
 
@@ -325,7 +325,7 @@ INSERT INTO travel_history (
     passenger_id, flight_id, travel_date, origin, destination, seat,
     booking_reference, fare_class, status, distance_km, duration_min, notes
 ) VALUES (
-    3, 1, DATE '2025-02-05', 'NYC', 'LON', '15C',
+    3, 1, DATE '2025-02-05', 'NYC', 'LON', '3',
     'GHI789', 'Business', 'Completed', 5567, 415, 'Upgraded to Business'
 );
 
@@ -333,7 +333,7 @@ INSERT INTO travel_history (
     passenger_id, flight_id, travel_date, origin, destination, seat,
     booking_reference, fare_class, status, distance_km, duration_min, notes
 ) VALUES (
-    4, 2, DATE '2025-03-21', 'PAR', 'TOK', '10A',
+    4, 2, DATE '2025-03-21', 'PAR', 'TOK', '1',
     'JKL012', 'Economy', 'Completed', 9712, 840, NULL
 );
 
@@ -341,7 +341,7 @@ INSERT INTO travel_history (
     passenger_id, flight_id, travel_date, origin, destination, seat,
     booking_reference, fare_class, status, distance_km, duration_min, notes
 ) VALUES (
-    5, 2, DATE '2025-04-01', 'PAR', 'TOK', '11B',
+    5, 2, DATE '2025-04-01', 'PAR', 'TOK', '2',
     'MNO345', 'Premium Economy', 'Checked-in', 9712, 845, 'Checked in online'
 );
 
@@ -349,7 +349,7 @@ INSERT INTO travel_history (
     passenger_id, flight_id, travel_date, origin, destination, seat,
     booking_reference, fare_class, status, distance_km, duration_min, notes
 ) VALUES (
-    6, 3, DATE '2025-05-18', 'LAX', 'SYD', '5C',
+    6, 3, DATE '2025-05-18', 'LAX', 'SYD', '5',
     'PQR678', 'Economy', 'Cancelled', 12051, 900, 'Cancelled by airline'
 );
 
@@ -365,7 +365,7 @@ INSERT INTO travel_history (
     passenger_id, flight_id, travel_date, origin, destination, seat,
     booking_reference, fare_class, status, distance_km, duration_min, notes
 ) VALUES (
-    1, 2, DATE '2025-12-10', 'PAR', 'TOK', '20C',
+    1, 2, DATE '2025-12-10', 'PAR', 'TOK', '20',
     'FUT2025', 'Economy', 'Booked', 9712, 840, 'Return trip'
 );
 

@@ -7,6 +7,7 @@ import PassengerForm from './PassengerForm'
 export default function ManagePassengers() {
   const [passengers, setPassengers] = useState([])
   const [search, setSearch] = useState('')
+  const [filter, setFilter] = useState('all') // 'all', 'missing-info', 'missing-passport', 'missing-address', 'missing-dob'
   const [flights, setFlights] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [editingPassenger, setEditingPassenger] = useState(null)
@@ -16,7 +17,26 @@ export default function ManagePassengers() {
 
   async function loadPassengers() {
     try {
-      const data = routeFlightId ? await service.listByFlight(routeFlightId) : await service.list()
+      let data
+      if (routeFlightId) {
+        const options = {}
+        // Use backend filter for general missing info, client-side for specific fields
+        if (filter === 'missing-info') {
+          options.missingInfo = true
+        }
+        data = await service.listByFlight(routeFlightId, options)
+
+        // Apply client-side filtering for specific missing fields
+        if (filter === 'missing-passport') {
+          data = data.filter(p => !p.passportNumber || p.passportNumber.trim() === '')
+        } else if (filter === 'missing-address') {
+          data = data.filter(p => !p.address || p.address.trim() === '')
+        } else if (filter === 'missing-dob') {
+          data = data.filter(p => !p.dateOfBirth)
+        }
+      } else {
+        data = await service.list()
+      }
       setPassengers(data)
     } catch (err) {
       console.error('Failed to load passengers', err)
@@ -42,7 +62,7 @@ export default function ManagePassengers() {
 
   useEffect(() => {
     loadPassengers()
-  }, [routeFlightId])
+  }, [routeFlightId, filter])
 
   const displayed = passengers.filter(p => {
     if (!search) return true
@@ -218,15 +238,28 @@ export default function ManagePassengers() {
           </div>
 
           <div className="max-w-6xl mx-auto px-6">
-            {/* Search */}
+            {/* Search and Filter */}
             <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-              <input
-                type="text"
-                placeholder="Search passengers by name, passport, or seat..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                className="w-80 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <div className="flex gap-4 items-center">
+                <input
+                  type="text"
+                  placeholder="Search passengers by name, passport, or seat..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  className="w-80 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <select
+                  value={filter}
+                  onChange={e => setFilter(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="all">All Passengers</option>
+                  <option value="missing-info">Missing Mandatory Info</option>
+                  <option value="missing-passport">Missing Passport</option>
+                  <option value="missing-address">Missing Address</option>
+                  <option value="missing-dob">Missing Date of Birth</option>
+                </select>
+              </div>
             </div>
 
             {/* Passengers Table */}
