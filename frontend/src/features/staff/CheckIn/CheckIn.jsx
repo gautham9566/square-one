@@ -85,7 +85,7 @@ export default function CheckIn() {
 
   // Example staff user - in real app this would come from auth context/state
   const staffUser = {
-    name: "Mike Wilson",
+    name: "Varshini",
     role: "Check-In Staff"
   };
 
