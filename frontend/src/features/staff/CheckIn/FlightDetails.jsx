@@ -281,7 +281,7 @@ export default function FlightDetails() {
               <CardHeader>
                 <CardTitle>Flight {flight.name || flight.id}</CardTitle>
                 <CardDescription>
-                  {flight.route} • {flight.date} • {flight.aircraftType}
+                  {flight.route} • {flight.displayDate || flight.date} • {flight.aircraftType}
                 </CardDescription>
               </CardHeader>
               <CardBody>
@@ -291,7 +291,7 @@ export default function FlightDetails() {
                     <p className="text-sm"><strong>Flight ID:</strong> {flight.id}</p>
                     <p className="text-sm"><strong>Aircraft Type:</strong> {flight.aircraftType}</p>
                     <p className="text-sm"><strong>Route:</strong> {flight.route}</p>
-                    <p className="text-sm"><strong>Date:</strong> {flight.date}</p>
+                    <p className="text-sm"><strong>Date:</strong> {flight.displayDate || flight.date}</p>
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-neutral-500 mb-1">Capacity</h3>

@@ -62,11 +62,20 @@ export default function CheckIn() {
   }
 
   const filteredFlights = (flights || []).filter((flight) => {
-    const matchesSearch = flight.name && flight.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesDate = dateFilter ? flight.date === dateFilter : true
-    const matchesRoute =
-      (startLocation ? flight.route && flight.route.toLowerCase().includes(startLocation.toLowerCase()) : true) &&
-      (destination ? flight.route && flight.route.toLowerCase().includes(destination.toLowerCase()) : true)
+    // Search filter - check flight name and route
+    const matchesSearch = !searchTerm ||
+      (flight.name && flight.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (flight.route && flight.route.toLowerCase().includes(searchTerm.toLowerCase()))
+
+    // Date filter - compare with original date format (yyyy-MM-dd)
+    const matchesDate = !dateFilter || flight.date === dateFilter
+
+    // Route filter - more flexible matching
+    const routeLower = (flight.route || '').toLowerCase()
+    const matchesStartLocation = !startLocation || routeLower.includes(startLocation.toLowerCase())
+    const matchesDestination = !destination || routeLower.includes(destination.toLowerCase())
+    const matchesRoute = matchesStartLocation && matchesDestination
+
     return matchesSearch && matchesDate && matchesRoute
   })
 
@@ -104,6 +113,7 @@ export default function CheckIn() {
             <CardBody>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 <SearchInput
+                label="Search Flights"
                   placeholder="Search flights..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -176,7 +186,7 @@ export default function CheckIn() {
                         <div className="space-y-2">
                           <div className="flex items-center justify-between text-sm">
                             <span className="text-neutral-600">Date:</span>
-                            <span className="font-medium">{flight.date}</span>
+                            <span className="font-medium">{flight.displayDate || flight.date}</span>
                           </div>
                           <div className="flex items-center justify-between text-sm">
                             <span className="text-neutral-600">Route:</span>

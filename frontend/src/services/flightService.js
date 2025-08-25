@@ -45,9 +45,10 @@ export async function remove(id) {
 
 function normalizeFlight(raw) {
   if (!raw) return raw
-  
-  // Handle date formatting - convert YYYY-MM-DD to readable format
-  let displayDate = raw.flightDate || raw.date;
+
+  // Keep original date for filtering, create display date for UI
+  const originalDate = raw.flightDate || raw.date;
+  let displayDate = originalDate;
   if (displayDate && typeof displayDate === 'string' && displayDate.includes('-')) {
     const [year, month, day] = displayDate.split('-');
     displayDate = `${month}/${day}/${year}`;
@@ -56,7 +57,8 @@ function normalizeFlight(raw) {
   return {
     id: raw.flightId || raw.id,
     name: raw.flightName || raw.name,
-    date: displayDate,
+    date: originalDate, // Keep original format for filtering
+    displayDate: displayDate, // Add display format for UI
     route: raw.route,
     departureTime: raw.departureTime,
     arrivalTime: raw.arrivalTime,

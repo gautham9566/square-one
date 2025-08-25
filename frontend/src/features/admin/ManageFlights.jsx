@@ -155,7 +155,7 @@ export default function ManageFlights() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         {flight.date ? (
                           <span className="text-gray-900">
-                            {new Date(flight.date).toLocaleDateString()}
+                            {flight.displayDate || new Date(flight.date).toLocaleDateString()}
                           </span>
                         ) : (
                           <span className="text-gray-400">Not scheduled</span>

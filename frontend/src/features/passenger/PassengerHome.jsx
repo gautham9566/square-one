@@ -224,8 +224,8 @@ export default function PassengerHome({ locationState }) {
                             <div className="font-medium">{f.name}</div>
                             <div className="text-sm text-neutral-600">({f.route})</div>
                           </td>
-                          <td className="p-4 text-neutral-600">{f.date} {f.departureTime}</td>
-                          <td className="p-4 text-neutral-600">{f.date} {f.arrivalTime}</td>
+                          <td className="p-4 text-neutral-600">{f.displayDate || f.date} {f.departureTime}</td>
+                          <td className="p-4 text-neutral-600">{f.displayDate || f.date} {f.arrivalTime}</td>
                           <td className="p-4 text-neutral-600">{calculateDuration(f.departureTime, f.arrivalTime)}</td>
                           <td className="p-4">
                             <Badge variant={f.availableSeats > 10 ? "success" : f.availableSeats > 0 ? "warning" : "danger"}>
