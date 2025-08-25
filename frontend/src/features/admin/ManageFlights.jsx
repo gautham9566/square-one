@@ -65,9 +65,6 @@ export default function ManageFlights() {
               <p className="text-gray-600 mt-1">Manage all flights and schedules</p>
             </div>
             <div className="flex items-center gap-3">
-              <button className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
-                Export Flights
-              </button>
               <button 
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 onClick={() => nav('/admin/flights/new')}

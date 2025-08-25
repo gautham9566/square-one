@@ -87,8 +87,9 @@ export default function ManageUsers() {
               >
                 <option>All</option>
                 <option>admin</option>
-                <option>staff</option>
-                <option>user</option>
+                <option>inflightStaff</option>
+                <option>checkinStaff</option>
+                <option>passenger</option>
               </select>
             </div>
             <button 
