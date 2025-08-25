@@ -80,24 +80,24 @@ export default function Login() {
       <div className="absolute inset-0 bg-white opacity-40"></div>
       <div className="w-full max-w-md p-6 relative z-10">
         {/* Logo and Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white">Welcome Back</h1>
-            <p className="text-gray-200 mt-2">Sign in to your airline management account</p>
-          </div>
-
-          <Card className="shadow-xl border-0 bg-black/20 backdrop-blur-lg">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {error && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-            <div className="flex">
-              <div className="ml-3">
-                <p className="text-sm text-red-800">{error}</p>
+              <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-white">Welcome Back</h1>
+              <p className="text-gray-200 mt-2">Sign in to your airline management account</p>
               </div>
-            </div>
+
+              <Card className="!shadow-xl !border-0 !bg-black/20 !backdrop-blur-lg !p-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {error && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div className="flex">
+                <div className="ml-3">
+                <p className="text-sm text-red-800">{error}</p>
                 </div>
-              )}
-              
-              <Input
+              </div>
+                </div>
+                )}
+                
+                <Input
                 label="Username"
                 type="text"
                 value={username}
@@ -106,9 +106,9 @@ export default function Login() {
                 required
                 disabled={loading}
                 labelClassName="text-white"
-              />
-              
-              <Input
+                />
+                
+                <Input
                 label="Password"
                 type="password"
                 value={password}
@@ -117,32 +117,32 @@ export default function Login() {
                 required
                 disabled={loading}
                 labelClassName="text-white"
-              />
+                />
 
-              <Button 
+                <Button 
                 type="submit" 
                 variant="primary" 
                 size="lg" 
                 className="w-full"
                 loading={loading}
                 disabled={loading}
-              >
+                >
                 {loading ? 'Signing in...' : 'Sign in'}
-              </Button>
-            </form>
+                </Button>
+              </form>
 
-            <div className="mt-6">
-              <div className="relative">
+              <div className="mt-6">
+                <div className="relative">
                 <div className="relative flex justify-center text-sm">
                  <span className="px-2 bg-transparent text-white">Quick access for testing</span>
                 </div>
-              </div>
+                </div>
 
-              <div className="mt-4 grid grid-cols-3 gap-2 ">
+                <div className="mt-4 grid grid-cols-3 gap-2 ">
                 <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
+              variant="outline"
+              size="sm"
+              onClick={() => {
                   setUsername('admin1');
                   setPassword('adminpass');
                 }}
